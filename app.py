@@ -5,6 +5,7 @@ from classes.sorceress import Sorceress
 from classes.druid import Druid
 from classes.amazon import Amazon
 from classes.paladin import Paladin
+from classes.barbarian import Barbarian
 
 # Create the main window
 root = tk.Tk()
@@ -52,18 +53,18 @@ top_subframe.pack(fill=tk.BOTH, expand=True)
 for i in range(3):
     top_subframe.grid_columnconfigure(i, weight=1)
 
-# Add a widget that spans across the top 3 columns
-merged_label = tk.Label(top_subframe, text="Your current Sorceress skill tree", bg="lightgreen", font=("Georgia", 16))
-merged_label.grid(row=0, column=0, columnspan=3, pady=10)
-
-# Add a 3x6 grid in each cell of the second row of the top_subframe
-
 maya = Sorceress("Maya")
 adam = Druid("Adam")
 mia = Amazon("mia")
 paul = Paladin("Paul")
+bryan = Barbarian("Bryan")
 
-character = paul
+character = bryan
+# Add a widget that spans across the top 3 columns
+merged_label = tk.Label(top_subframe, text=f"Your current {character.skill_tree_1.character_class} skill tree", bg="lightgreen", font=("Georgia", 16))
+merged_label.grid(row=0, column=0, columnspan=3, pady=10)
+
+# Add a 3x6 grid in each cell of the second row of the top_subframe
 
 skill_tree_names = [character.skill_tree_1.name, character.skill_tree_2.name, character.skill_tree_3.name]
 layouts = [
