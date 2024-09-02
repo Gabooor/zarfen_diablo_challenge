@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from classes.sorceress import Sorceress
 from classes.druid import Druid
 from classes.amazon import Amazon
+from classes.paladin import Paladin
 
 # Create the main window
 root = tk.Tk()
@@ -60,8 +61,9 @@ merged_label.grid(row=0, column=0, columnspan=3, pady=10)
 maya = Sorceress("Maya")
 adam = Druid("Adam")
 mia = Amazon("mia")
+paul = Paladin("Paul")
 
-character = mia
+character = paul
 
 skill_tree_names = [character.skill_tree_1.name, character.skill_tree_2.name, character.skill_tree_3.name]
 layouts = [
@@ -120,11 +122,11 @@ for col in range(3):
         for c in range(3):
             if layouts[col][r][c] == 1:
                 cell_button = tk.Button(inner_frame, image=images[col][skill_count], bg="lightgray", relief="ridge", width=70, height=70)
-                cell_label = tk.Label(inner_frame, text=r, font=("Arial", 20, "bold"), fg="white", bg="#3d3021")
+                # cell_label = tk.Label(inner_frame, text=r, font=("Arial", 20, "bold"), fg="white", bg="#3d3021")
                 
                 skill_count += 1
                 cell_button.grid(row=r+1, column=c, pady=10, padx=15)
-                cell_label.grid(row=r+1, column=c, pady=10, padx=15)
+                # cell_label.grid(row=r+1, column=c, pady=10, padx=15)
             else:
                 cell_button = tk.Button(inner_frame, bg="lightgray", relief="ridge", width=70, height=70)
                 cell_button.grid(row=r+1, column=c, pady=10, padx=15)

@@ -107,7 +107,7 @@ class Druid:
         self.skill_tree_3 = druid_summoning_tree
 
     def __repr__(self):
-        return (f"Amazon(username={self.username!r}, "
+        return (f"Druid(username={self.username!r}, "
                 f"level={self.level}, "
                 f"strength={self.strength}, "
                 f"dexterity={self.dexterity}, "

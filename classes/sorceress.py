@@ -107,7 +107,7 @@ class Sorceress:
         self.skill_tree_3 = sorceress_fire_spells_tree
 
     def __repr__(self):
-        return (f"Amazon(username={self.username!r}, "
+        return (f"Sorceress(username={self.username!r}, "
                 f"level={self.level}, "
                 f"strength={self.strength}, "
                 f"dexterity={self.dexterity}, "
