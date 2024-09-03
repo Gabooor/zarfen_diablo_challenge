@@ -6,6 +6,7 @@ from classes.druid import Druid
 from classes.amazon import Amazon
 from classes.paladin import Paladin
 from classes.barbarian import Barbarian
+from classes.necromancer import Necromancer
 
 # Create the main window
 root = tk.Tk()
@@ -58,8 +59,9 @@ adam = Druid("Adam")
 mia = Amazon("mia")
 paul = Paladin("Paul")
 bryan = Barbarian("Bryan")
+nimrod = Necromancer("Nimrod")
 
-character = bryan
+character = nimrod
 # Add a widget that spans across the top 3 columns
 merged_label = tk.Label(top_subframe, text=f"Your current {character.skill_tree_1.character_class} skill tree", bg="lightgreen", font=("Georgia", 16))
 merged_label.grid(row=0, column=0, columnspan=3, pady=10)
