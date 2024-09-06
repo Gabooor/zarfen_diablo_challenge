@@ -1,6 +1,5 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-
 from classes.sorceress import Sorceress
 from classes.druid import Druid
 from classes.amazon import Amazon
@@ -63,18 +62,17 @@ bryan = Barbarian("Bryan")
 nimrod = Necromancer("Nimrod")
 ashlin = Assassin("Ashlin")
 
-character = ashlin
+character = adam
 # Add a widget that spans across the top 3 columns
-merged_label = tk.Label(top_subframe, text=f"Your current {character.skill_tree_1.character_class} skill tree", bg="lightgreen", font=("Georgia", 16))
+merged_label = tk.Label(top_subframe, text=f"Your current {character.__class__.__name__} skill tree", bg="lightgreen", font=("Georgia", 16))
 merged_label.grid(row=0, column=0, columnspan=3, pady=10)
 
 # Add a 3x6 grid in each cell of the second row of the top_subframe
 
-skill_tree_names = [character.skill_tree_1.name, character.skill_tree_2.name, character.skill_tree_3.name]
 layouts = [
-    character.skill_tree_1.layout,
-    character.skill_tree_2.layout,
-    character.skill_tree_3.layout
+    character.skill_trees[0].layout,
+    character.skill_trees[1].layout,
+    character.skill_trees[2].layout
 ]
 
 image_paths = []
@@ -82,23 +80,11 @@ image_paths = []
 for i in range(3):
     sub_image_paths = []
     for j in range(10):
-        if i == 0:
-            formatted_name = character.skill_tree_1.skills[j].name.lower().replace(" ", "_")
-            path = f"skills/{character.skill_tree_1.character_class}/{character.skill_tree_1.name}/{formatted_name}.png"
-        elif i == 1:
-            formatted_name = character.skill_tree_2.skills[j].name.lower().replace(" ", "_")
-            path = f"skills/{character.skill_tree_2.character_class}/{character.skill_tree_2.name}/{formatted_name}.png"
-        if i == 2:
-            formatted_name = character.skill_tree_3.skills[j].name.lower().replace(" ", "_")
-            path = f"skills/{character.skill_tree_3.character_class}/{character.skill_tree_3.name}/{formatted_name}.png"
+        formatted_name = character.skill_trees[i].skills[j].name.lower().replace(" ", "_")
+        path = f"skills/{character.skill_trees[i].character_class}/{character.skill_trees[i].name}/{formatted_name}.png"
         sub_image_paths.append(path)
     image_paths.append(sub_image_paths)
 
-# image_paths = [
-#     ["skills/ice_bolt.png", "skills/frozen_armor.png", "skills/frost_nova.png", "skills/ice_blast.png", "skills/shiver_armor.png", "skills/glacial_spike.png", "skills/blizzard.png", "skills/chilling_armor.png", "skills/frozen_orb.png", "skills/cold_mastery.png", ],
-#     ["skills/charged_bolt.png", "skills/static_field.png", "skills/telekinesis.png", "skills/nova.png", "skills/lightning.png", "skills/chain_lightning.png", "skills/teleport.png", "skills/thunder_storm.png", "skills/energy_shield.png", "skills/lightning_mastery.png", ],
-#     ["skills/fire_bolt.png", "skills/warmth.png", "skills/inferno.png", "skills/blaze.png", "skills/fire_ball.png", "skills/fire_wall.png", "skills/enchant.png", "skills/meteor.png", "skills/fire_mastery.png", "skills/hydra.png"]    
-# ]
 images = [[],[],[]]
 
 for i in range(3):
@@ -108,34 +94,66 @@ for i in range(3):
         skill_photo = ImageTk.PhotoImage(skill_image)
         images[i].append(skill_photo)
 
+# Define specific connections between buttons using pairs of coordinates
 
+lines_path = "skill_tree_background.png"  # Path to your image file
+lines_image = Image.open(lines_path)
+# lines_image = lines_image.resize((318, 627), Image.Resampling.LANCZOS)  # Resize the image to fit the frame
+lines_photo = ImageTk.PhotoImage(lines_image)
+
+# Add skill trees with canvas and draw specific lines
 for col in range(3):
     skill_count = 0
-    inner_frame = tk.Frame(top_subframe, bg="white", relief="solid", borderwidth=1)
-    inner_frame.grid(row=1, column=col, pady=10)
+    
+    # Create a canvas directly on the top_subframe instead of using a Label and inner_frame
+    canvas_width, canvas_height = 318, 619
+    canvas = tk.Canvas(top_subframe, width=canvas_width, height=canvas_height, bg="white")
+    canvas.grid(row=1, column=col, pady=10, padx=15)
 
-    # Configure the 3x6 grid inside the inner_frame
-    for r in range(7):
-        inner_frame.grid_rowconfigure(r, weight=1)
-    for c in range(3):
-        inner_frame.grid_columnconfigure(c, weight=1)
+    # Determine the total content size (based on 3x6 grid and button size)
+    content_width, content_height = 3 * 80, 6 * 80  # Each button is 80x80 including padding
 
-    # Populate the 3x6 grid with labels (or other widgets)
-    merged_inner_label = tk.Label(inner_frame, text=skill_tree_names[col], bg="lightgreen", font=("Georgia", 16))
-    merged_inner_label.grid(row=0, column=0, columnspan=3, sticky="nsew")
+    # Calculate the offset for centering the content within the canvas
+    x_offset = (canvas_width - content_width) // 2
+    y_offset = (canvas_height - content_height) // 2
+
+    # Add background image to the canvas, centered
+    canvas.create_image(0, 0, image=lines_photo, anchor="nw")
+
+    # Store button positions and references
+    button_positions = {}
+
+    # First pass: Determine button positions based on layout, apply offset
     for r in range(6):
         for c in range(3):
             if layouts[col][r][c] == 1:
-                cell_button = tk.Button(inner_frame, image=images[col][skill_count], bg="lightgray", relief="ridge", width=70, height=70)
-                # cell_label = tk.Label(inner_frame, text=r, font=("Arial", 20, "bold"), fg="white", bg="#3d3021")
-                
+                # Calculate the position for the button with offset
+                x, y = x_offset + 15 + c * 80, y_offset + 15 + r * 80
+                # Store button positions (center of the button) using the grid position as the key
+                button_positions[(r, c)] = (x + 35, y + 35)  # Adding 35 to get the center of the button (70/2)
+
+    # Draw lines between specific buttons according to the variable 'lines_to_draw'
+    for connection in character.skill_tree_dependencies[col]:
+        start_row, start_col = connection[0]
+        end_row, end_col = connection[1]
+        if (start_row, start_col) in button_positions and (end_row, end_col) in button_positions:
+            x1, y1 = button_positions[(start_row, start_col)]
+            x2, y2 = button_positions[(end_row, end_col)]
+            canvas.create_line(x1, y1, x2, y2, fill="#aca186", width=8)  # Draw line between buttons
+
+    # Second pass: Draw skill images (buttons) on top of the lines and background, centered
+    skill_count = 0
+    for r in range(6):
+        for c in range(3):
+            if layouts[col][r][c] == 1:
+                # Create skill button (image) on the canvas with offset
+                x, y = x_offset + 15 + c * 80, y_offset + 15 + r * 80
+                canvas.create_image(x, y, image=images[col][skill_count], anchor="nw")
                 skill_count += 1
-                cell_button.grid(row=r+1, column=c, pady=10, padx=15)
-                # cell_label.grid(row=r+1, column=c, pady=10, padx=15)
-            else:
-                cell_button = tk.Button(inner_frame, bg="lightgray", relief="ridge", width=70, height=70)
-                cell_button.grid(row=r+1, column=c, pady=10, padx=15)
-                cell_button.grid_forget()
+
+    # Label for each skill tree at the top of the canvas, centered
+    canvas.create_text(canvas_width // 2, y_offset - 40, text=character.skill_trees[col].name, font=("Georgia", 20, "bold"), fill="#cfc8b8")
+
 
 # Bottom Subframe Configuration (unchanged)
 bottom_subframe = tk.Frame(main_content_frame, bg="grey", height=350)
@@ -160,10 +178,11 @@ undo_image = undo_image.resize((100, 40), Image.Resampling.LANCZOS)
 undo_photo = ImageTk.PhotoImage(undo_image)
 undo_btn = tk.Button(bottom_subframe, text="Undo", image=undo_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=100, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
 
+# Add additional buttons (unchanged)
 new_char_image = Image.open("button_300.png")
-new_char_image = new_char_image.resize((280, 40), Image.Resampling.LANCZOS)
+new_char_image = new_char_image.resize((230, 40), Image.Resampling.LANCZOS)
 new_char_photo = ImageTk.PhotoImage(new_char_image)
-new_char_btn = tk.Button(bottom_subframe, text="Create new character", image=new_char_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=280, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
+new_char_btn = tk.Button(bottom_subframe, text="New character", image=new_char_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=230, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
 
 import_char_image = Image.open("button_300.png")
 import_char_image = import_char_image.resize((230, 40), Image.Resampling.LANCZOS)

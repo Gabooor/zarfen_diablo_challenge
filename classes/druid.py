@@ -102,9 +102,17 @@ class Druid:
         self.vitality = vitality
         self.energy = energy
 
-        self.skill_tree_1 = druid_elemental_tree
-        self.skill_tree_2 = druid_shape_shifting_tree
-        self.skill_tree_3 = druid_summoning_tree
+        self.skill_trees = [
+            druid_elemental_tree,
+            druid_shape_shifting_tree,
+            druid_summoning_tree    
+        ]
+
+        self.skill_tree_dependencies = [
+            [[[0, 0], [1, 0]], [[1, 0], [2, 0]], [[1, 2], [2, 2]], [[2, 0], [4, 0]], [[2, 2], [3, 1]], [[3, 1], [4, 1]], [[4, 0], [5, 0]], [[4, 1], [5, 1]], [[5, 1], [5, 0]]], 
+            [[[0, 0], [0, 1]], [[0, 0], [2, 0]], [[1, 2], [2, 2]], [[2, 0], [3, 0]], [[2, 0], [3, 1]], [[2, 2], [3, 1]], [[2, 2], [4, 2]], [[3, 0], [5, 0]], [[3, 1], [4, 1]]], 
+            [[[0, 1], [1, 1]], [[0, 2], [2, 2]], [[1, 0], [3, 0]], [[1, 0], [3, 1]], [[1, 1], [3, 1]], [[2, 2], [4, 2]], [[3, 0], [5, 0]], [[3, 1], [5, 1]]]
+        ]
 
     def __repr__(self):
         return (f"Druid(username={self.username!r}, "

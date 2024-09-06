@@ -100,9 +100,17 @@ class Amazon:
         self.vitality = vitality
         self.energy = energy
 
-        self.skill_tree_1 = amazon_javelin_and_spear_tree
-        self.skill_tree_2 = amazon_passive_and_magic_tree
-        self.skill_tree_3 = amazon_bow_and_crossbow_tree
+        self.skill_trees = [
+            amazon_javelin_and_spear_tree,
+            amazon_passive_and_magic_tree,
+            amazon_bow_and_crossbow_tree    
+        ]
+
+        self.skill_tree_dependencies = [
+            [[[0, 0], [1, 1]], [[0, 0], [2, 0]], [[1, 1], [3, 1]], [[1, 2], [2, 2]], [[2, 0], [4, 0]], [[2, 2], [3, 1]], [[2, 2], [3, 2]], [[3, 1], [5, 1]], [[3, 2], [5, 2]]],
+            [[[0, 0], [2, 0]], [[0, 2], [3, 2]], [[1, 1], [2, 1]], [[2, 0], [4, 0]], [[2, 1], [4, 1]], [[3, 2], [5, 2]], [[4, 0], [5, 0]], [[4, 1], [5, 0]]], 
+            [[[0, 1], [1, 1]], [[0, 2], [2, 2]], [[1, 0], [3, 0]], [[1, 0], [3, 1]], [[1, 1], [2, 2]], [[1, 1], [3, 1]], [[2, 2], [4, 2]], [[3, 0], [5, 0]], [[3, 1], [4, 1]]]
+        ]
 
     def __repr__(self):
         return (f"Amazon(username={self.username!r}, "

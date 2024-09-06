@@ -102,9 +102,17 @@ class Sorceress:
         self.vitality = vitality
         self.energy = energy
 
-        self.skill_tree_1 = sorceress_cold_spells_tree
-        self.skill_tree_2 = sorceress_lightning_spells_tree
-        self.skill_tree_3 = sorceress_fire_spells_tree
+        self.skill_trees = [
+            sorceress_cold_spells_tree,
+            sorceress_lightning_spells_tree,
+            sorceress_fire_spells_tree    
+        ]
+
+        self.skill_tree_dependencies = [
+            [[[0, 1], [1, 1]], [[0, 2], [2, 2]], [[1, 0], [4, 0]], [[1, 1], [2, 2]], [[1, 1], [3, 1]], [[2, 2], [4, 2]], [[3, 1], [4, 0]], [[4, 0], [5, 0]]], 
+            [[[0, 1], [2, 1]], [[1, 0], [2, 0]], [[1, 2], [3, 2]], [[2, 0], [4, 0]], [[2, 1], [3, 1]], [[3, 1], [4, 0]], [[3, 1], [4, 2]], [[3, 2], [4, 2]]], 
+            [[[0, 1], [2, 1]], [[0, 2], [3, 2]], [[1, 0], [2, 0]], [[2, 0], [3, 0]], [[2, 1], [3, 2]], [[2, 1], [4, 1]], [[3, 0], [4, 1]], [[3, 2], [5, 2]]]
+        ]
 
     def __repr__(self):
         return (f"Sorceress(username={self.username!r}, "
