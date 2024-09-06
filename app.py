@@ -101,6 +101,11 @@ lines_image = Image.open(lines_path)
 # lines_image = lines_image.resize((318, 627), Image.Resampling.LANCZOS)  # Resize the image to fit the frame
 lines_photo = ImageTk.PhotoImage(lines_image)
 
+skill_positions = []
+skill_tree_canvases = []
+skill_level_rectangles = [[],[],[]]
+skill_level_texts = [[],[],[]]
+
 # Add skill trees with canvas and draw specific lines
 for col in range(3):
     skill_count = 0
@@ -108,6 +113,7 @@ for col in range(3):
     # Create a canvas directly on the top_subframe instead of using a Label and inner_frame
     canvas_width, canvas_height = 318, 619
     canvas = tk.Canvas(top_subframe, width=canvas_width, height=canvas_height, bg="white")
+    skill_tree_canvases.append(canvas)
     canvas.grid(row=1, column=col, pady=10, padx=15)
 
     # Determine the total content size (based on 3x6 grid and button size)
@@ -121,7 +127,7 @@ for col in range(3):
     canvas.create_image(0, 0, image=lines_photo, anchor="nw")
 
     # Store button positions and references
-    button_positions = {}
+    skill_image_positions = {}
 
     # First pass: Determine button positions based on layout, apply offset
     for r in range(6):
@@ -130,16 +136,18 @@ for col in range(3):
                 # Calculate the position for the button with offset
                 x, y = x_offset + 15 + c * 80, y_offset + 15 + r * 80
                 # Store button positions (center of the button) using the grid position as the key
-                button_positions[(r, c)] = (x + 35, y + 35)  # Adding 35 to get the center of the button (70/2)
+                skill_image_positions[(r, c)] = (x + 35, y + 35)  # Adding 35 to get the center of the button (70/2)
 
     # Draw lines between specific buttons according to the variable 'lines_to_draw'
     for connection in character.skill_tree_dependencies[col]:
         start_row, start_col = connection[0]
         end_row, end_col = connection[1]
-        if (start_row, start_col) in button_positions and (end_row, end_col) in button_positions:
-            x1, y1 = button_positions[(start_row, start_col)]
-            x2, y2 = button_positions[(end_row, end_col)]
-            canvas.create_line(x1, y1, x2, y2, fill="#aca186", width=8)  # Draw line between buttons
+        if (start_row, start_col) in skill_image_positions and (end_row, end_col) in skill_image_positions:
+            x1, y1 = skill_image_positions[(start_row, start_col)]
+            x2, y2 = skill_image_positions[(end_row, end_col)]
+            canvas.create_line(x1, y1, x2, y2, fill="#aca186", width=8)
+
+    skill_positions.append(skill_image_positions)
 
     # Second pass: Draw skill images (buttons) on top of the lines and background, centered
     skill_count = 0
@@ -149,11 +157,34 @@ for col in range(3):
                 # Create skill button (image) on the canvas with offset
                 x, y = x_offset + 15 + c * 80, y_offset + 15 + r * 80
                 canvas.create_image(x, y, image=images[col][skill_count], anchor="nw")
+                rectangle = canvas.create_rectangle(0, 0, 0, 0, width=10, fill="black")
+                text = canvas.create_text(0, 0, font=("Courier New", 14, "bold"), fill="#cfc8b8")
+                # rectangle = canvas.create_rectangle(x+54, y+54, x+64, y+64, width=10, fill="black")
+                # text = canvas.create_text(x+60, y+60, text="+", font=("Courier New", 14), fill="#cfc8b8")
+                skill_level_rectangles[col].append(rectangle)
+                skill_level_texts[col].append(text)
                 skill_count += 1
 
-    # Label for each skill tree at the top of the canvas, centered
     canvas.create_text(canvas_width // 2, y_offset - 40, text=character.skill_trees[col].name, font=("Georgia", 20, "bold"), fill="#cfc8b8")
 
+import random
+for i in range(3): # skill trees
+    for j, skill in enumerate(character.skill_trees[i].skills):
+        character.skill_trees[i].skills[j].base_level = random.randint(0, 99)
+
+for i in range(3): # skill trees
+    for j, skill in enumerate(character.skill_trees[i].skills):
+        if skill.base_level > 0:
+            position = list(skill_positions[i].items())[j]
+            _, (a, b) = position
+            skill_tree_canvases[i].itemconfig(skill_level_texts[i][j], text=skill.base_level)
+            if skill.base_level < 10:
+                skill_tree_canvases[i].coords(skill_level_texts[i][j], a+25, b+25)
+                skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+22, b+20, a+30, b+30)
+            else:
+                skill_tree_canvases[i].coords(skill_level_texts[i][j], a+20, b+25)
+                skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+10, b+20, a+30, b+30)
+        
 
 # Bottom Subframe Configuration (unchanged)
 bottom_subframe = tk.Frame(main_content_frame, bg="grey", height=350)
