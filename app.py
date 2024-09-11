@@ -24,11 +24,13 @@ def blend_image_with_background(image_path, bg_color=(255, 255, 255), opacity=0.
     # Convert the image to a format Tkinter can work with
     return ImageTk.PhotoImage(blended)
 
-def on_class_checkbox_change(is_randomized, combobox):
+def on_class_checkbox_change(is_randomized, combobox, canvas, is_randomized_text):
     if is_randomized.get():
         combobox.config(state="disabled")
+        canvas.itemconfig(is_randomized_text, text="Randomizing is enabled")
     else:
         combobox.config(state="enabled")
+        canvas.itemconfig(is_randomized_text, text="")
 
 def on_class_combobox_change(combobox, image_label):
     selected_value = combobox.get().lower()
@@ -87,6 +89,10 @@ def main_menu(frames, main_menu_screen):
 
     main_menu_screen.pack(fill=tk.BOTH, expand=True)
 
+def create_new_character(character_class, is_randomized, name, canvas, error_text):
+    if name == "":
+        canvas.itemconfig(error_text, text="You must provide a character name!")
+
 # lambda: random_build(content_frames, top_subframe, bottom_subframe)
 def random_build_load_screen(frames, random_build_screen_1):
     for frame in frames:
@@ -141,15 +147,13 @@ def random_build_load_screen(frames, random_build_screen_1):
     # Character creation row
     cv.create_text(354, 124, text="Create character", font=("Georgia", 30, "bold"), fill="black")
     cv.create_text(350, 120, text="Create character", font=("Georgia", 30, "bold"), fill="#b0b0b0")
-    text_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16))
-    cv.create_window(520, 220, window=text_entry)
 
 
     # Enter character name row
     cv.create_text(223, 223, text="Enter character name:", font=("Georgia", 20, "bold"), fill="black")
     cv.create_text(220, 220, text="Enter character name:", font=("Georgia", 20, "bold"), fill="#918e89")
-    text_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
-    cv.create_window(520, 220, window=text_entry)
+    create_character_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
+    cv.create_window(520, 220, window=create_character_entry)
 
     # Select a class row
     cv.create_text(284, 273, text="Select a class:", font=("Georgia", 20, "bold"), fill="black")
@@ -165,113 +169,38 @@ def random_build_load_screen(frames, random_build_screen_1):
     button_image = Image.open("button.png")
     button_image = button_image.resize((220, 50), Image.Resampling.LANCZOS)
     button_photo = ImageTk.PhotoImage(button_image)
-
+    
     cv.create_text(473, 403, text="If you want an absolutely random\nexperience,let the class to be\nrandomized as well", font=("Georgia", 16, "bold"), fill="black")
     cv.create_text(470, 400, text="If you want an absolutely random\nexperience,let the class to be\nrandomized as well.", font=("Georgia", 16, "bold"), fill="#b0b0b0")
+    is_randomized_text = cv.create_text(160, 440, text="", font=("Georgia", 14, "bold"), fill="#07da63")
     checkbox_var = tk.BooleanVar()
-    checkbox = tk.Checkbutton(random_build_screen_1, text="Randomize class", font=("Georgia", 16, "bold"), variable=checkbox_var, command=lambda: on_class_checkbox_change(checkbox_var, class_combobox), cursor="hand2", bg="#222222", fg="#b0b0b0")
+    checkbox = tk.Checkbutton(random_build_screen_1, text="Randomize class", font=("Georgia", 16, "bold"), variable=checkbox_var, command=lambda: on_class_checkbox_change(checkbox_var, class_combobox, cv, is_randomized_text), cursor="hand2", bg="#222222", fg="#b0b0b0")
     checkbox.image = button_photo
-    # cv.create_window(497, 325, window=checkbox)
     cv.create_rectangle(49,378, 271, 422, fill="black")
     cv.create_window(160, 400, window=checkbox)
     
     # Create character button
-    create_character_button = tk.Button(random_build_screen_1, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Create character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2")
+    create_character_button = tk.Button(random_build_screen_1, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Create character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=lambda: create_new_character(class_combobox.get(), checkbox_var.get(), create_character_entry.get(), cv, error_text))
     create_character_button.image = button_photo
     cv.create_window(350, 500, window=create_character_button)
-    
+    error_text = cv.create_text(350, 550, text="", font=("Georgia", 18, "bold"), fill="red")
+
     cv.create_rectangle(60, 580, 633, 583, fill="black")
     
     cv.create_text(354, 624, text="Load character", font=("Georgia", 30, "bold"), fill="black")
     cv.create_text(350, 620, text="Load character", font=("Georgia", 30, "bold"), fill="#b0b0b0")
+    
 
     # Enter character name row
     cv.create_text(263, 723, text="Character name:", font=("Georgia", 20, "bold"), fill="black")
     cv.create_text(260, 720, text="Character name:", font=("Georgia", 20, "bold"), fill="#918e89") #720
-    text_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
-    cv.create_window(520, 720, window=text_entry)
+    load_character_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
+    cv.create_window(520, 720, window=load_character_entry)
 
-    # Create character button
-    create_character_button = tk.Button(random_build_screen_1, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Load character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2")
-    create_character_button.image = button_photo
-    cv.create_window(350, 797, window=create_character_button)
-
-    # cv.create_text(313, 403, text="If you want an absolutely random experience,\nlet the class to be randomized as well", font=("Georgia", 16, "bold"), fill="black")
-    # cv.create_text(310, 400, text="If you want an absolutely random experience,\nlet the class to be randomized as well.", font=("Georgia", 16, "bold"), fill="#b0b0b0")
-    # checkbox_var = tk.BooleanVar()
-    # checkbox = tk.Checkbutton(random_build_screen_1, text="Randomize class", font=("Georgia", 16), variable=checkbox_var, command=lambda: on_class_checkbox_change(checkbox_var, class_combobox))
-    # # cv.create_window(497, 325, window=checkbox)
-    # cv.create_window(307, 460, window=checkbox)
-
-    # label_background
-    # # Class setup - Left
-        # Class setup - Top Left
-    # class_left_top_frame = tk.Frame(class_left_frame, bg="green")
-    # class_left_top_frame.pack(side=tk.TOP, padx=20, pady=20)
-    # content_frames.append(class_left_top_frame)
-
-    # entry_label_image = Image.open("test.png")
-    # # entry_label_image = entry_label_image.resize((239, 22), Image.Resampling.LANCZOS)
-    # entry_label_photo = ImageTk.PhotoImage(entry_label_image)
-
-    # entry_label_background = tk.Label(random_build_screen_1, image=entry_label_photo, text="Enter character name:", font=("Georgia", 16), bg="#0b0b09", highlightthickness=0)
-    # cv.create_window(220, 220, window=entry_label_background)  # (x=200, y=150)
-    # entry_label_background.image = entry_label_photo
-
-    # entry_text = tk.Text(random_build_screen_1, text="Enter character name:", font=("Georgia", 16), fill="#cfc8b8")
-    # cv.create_window(200, 400, window=entry_text)  # (x=200, y=150)
-    # entry_label.pack(side=tk.LEFT, padx=20, pady=20)
-
-    # entry_text = cv.create_text(220, 220, text="Enter character name:", font=("Georgia", 20, "bold"), fill="#cfc8b8")
-    # text_entry.pack(side=tk.LEFT, padx=20, pady=20)
-
-    #     # Class setup - Middle Left
-    # class_left_middle_frame = tk.Frame(class_left_frame, bg="aqua")
-    # class_left_middle_frame.pack(padx=20, pady=20)
-    
-    # entry_label = tk.Label(class_left_middle_frame, text="Choose a class:", width=20, height=2, font=("Georgia", 16))
-    # entry_label.pack(side=tk.LEFT, padx=20, pady=20)
-
-    # classes = ["Sorceress", "Druid", "Amazon", "Paladin", "Barbarian", "Necromancer", "Assassin"]
-    # class_combobox = ttk.Combobox(class_left_middle_frame, values=classes, state="readonly", font=("Georgia", 16))
-    # class_combobox.current(0)
-    # class_combobox.pack(side=tk.LEFT, padx=20, pady=20)
-    # class_combobox.bind("<<ComboboxSelected>>", lambda event, c=class_combobox, i=image_label, : on_class_combobox_change(c, i))
-
-    #     # Class setup - Bottom Left
-    # class_left_bottom_frame = tk.Frame(class_left_frame, bg="green")
-    # class_left_bottom_frame.pack(side=tk.BOTTOM, padx=20, pady=20)
-
-    # checkbox_var = tk.BooleanVar()
-    # checkbox = tk.Checkbutton(class_left_bottom_frame, text="Randomize Class", font=("Georgia", 16), variable=checkbox_var, command=lambda: on_class_checkbox_change(checkbox_var, class_combobox))
-    # checkbox.pack(padx=20, pady=20)
-
-    # # Load character
-    # load_character_frame = tk.Frame(random_build_screen_1, bg="blue")
-    # load_character_frame.pack(side=tk.LEFT, padx=20, pady=20)
-    # content_frames.append(load_character_frame)
-
-    # load_character_button = tk.Button(load_character_frame, text="Load character", font=("Georgia", 14))
-    # load_character_button.pack(padx=20, pady=20)
-
-    # load_character_name_label = tk.Label(load_character_frame, text="Enter character name:", width=20, height=2, font=("Georgia", 16))
-    # load_character_name_label.pack(side=tk.LEFT, padx=20, pady=20)
-
-    # load_character_name_entry = tk.Entry(load_character_frame, width=18, font=("Georgia", 16))
-    # load_character_name_entry.pack(side=tk.LEFT, padx=20, pady=20)
-
-    # # Create character
-    # create_character_frame = tk.Frame(random_build_screen_1, bg="blue")
-    # create_character_frame.pack(side=tk.RIGHT, padx=20, pady=20)
-    # content_frames.append(create_character_frame)
-
-    # create_character_button = tk.Button(create_character_frame, text="Create character", font=("Georgia", 14))
-    # create_character_button.pack(padx=20, pady=20)
-
-    # error_text = tk.Text(create_character_frame, height=5, width=35, font=("Georgia", 14), fg="red")
-    # error_text.insert(tk.END, "A character already exists with the name\n'Gabooor'")
-    # error_text.pack(padx=20, pady=20)
-
+    # Load character button
+    load_character_button = tk.Button(random_build_screen_1, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Load character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2")
+    load_character_button.image = button_photo
+    cv.create_window(350, 797, window=load_character_button)
 
     random_build_screen_1.pack(fill=tk.BOTH, expand=True)
 
