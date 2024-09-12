@@ -1,6 +1,10 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
+
+import json
+import os
+
 from classes.sorceress import Sorceress
 from classes.druid import Druid
 from classes.amazon import Amazon
@@ -10,6 +14,7 @@ from classes.necromancer import Necromancer
 from classes.assassin import Assassin
 
 content_frames = []
+
 
 def blend_image_with_background(image_path, bg_color=(255, 255, 255), opacity=0.1):
     # Load the image with alpha channel (transparency)
@@ -89,9 +94,81 @@ def main_menu(frames, main_menu_screen):
 
     main_menu_screen.pack(fill=tk.BOTH, expand=True)
 
+def open_file():
+    # Define the initial directory
+    initial_dir = 'characters'  # Change this to your desired directory
+
+    # Open a file dialog to select a JSON file
+    file_path = filedialog.askopenfilename(
+        initialdir=initial_dir,  # Set the initial directory
+        title="Select a JSON File",
+        filetypes=(("JSON Files", "*.json"), ("All Files", "*.*"))
+    )
+    if file_path:
+        load_character(file_path)
+
+def load_character(filename):
+    with open(filename, 'r') as file:
+        data = json.load(file)
+    
+    character_class = data["skill_trees"][0]["character_class"]
+
+    if character_class == "Sorceress":
+        character = Sorceress("username")
+    if character_class == "Druid":
+        character = Druid("username")
+    if character_class == "Amazon":
+        character = Amazon("username")
+    if character_class == "Paladin":
+        character = Paladin("username")
+    if character_class == "Barbarian":
+        character = Barbarian("username")
+    if character_class == "Necromancer":
+        character = Necromancer("username")
+    if character_class == "Assassin":
+        character = Assassin("username")
+
+    character.username = data['username']
+    character.level = data['level']
+    character.strength = data['strength']
+    character.dexterity = data['dexterity']
+    character.vitality = data['vitality']
+    character.energy = data['energy']
+    
+    # Loop through each skill tree and update the skill's base level
+    for tree_data, skill_tree in zip(data['skill_trees'], character.skill_trees):
+        for skill_data, skill in zip(tree_data['skills'], skill_tree.skills):
+            skill.base_level = skill_data['base_level']
+    
+    print(character)
+
 def create_new_character(character_class, is_randomized, name, canvas, error_text):
     if name == "":
         canvas.itemconfig(error_text, text="You must provide a character name!")
+        canvas.itemconfig(error_text, fill="red")
+        return
+    if os.path.exists(f"characters/{name}.json"):
+        canvas.itemconfig(error_text, text="You already have a character with that name!")
+        canvas.itemconfig(error_text, fill="red")
+        return
+    if character_class == "Sorceress":
+        character = Sorceress(name)
+    if character_class == "Druid":
+        character = Druid(name)
+    if character_class == "Amazon":
+        character = Amazon(name)
+    if character_class == "Paladin":
+        character = Paladin(name)
+    if character_class == "Barbarian":
+        character = Barbarian(name)
+    if character_class == "Necromancer":
+        character = Necromancer(name)
+    if character_class == "Assassin":
+        character = Assassin(name)
+    with open(f"characters/{name}.json", 'w') as file:
+        json.dump(character.to_dict(), file, indent=2)
+    canvas.itemconfig(error_text, text="Successfully created character")
+    canvas.itemconfig(error_text, fill="green")
 
 # lambda: random_build(content_frames, top_subframe, bottom_subframe)
 def random_build_load_screen(frames, random_build_screen_1):
@@ -192,13 +269,15 @@ def random_build_load_screen(frames, random_build_screen_1):
     
 
     # Enter character name row
-    cv.create_text(263, 723, text="Character name:", font=("Georgia", 20, "bold"), fill="black")
-    cv.create_text(260, 720, text="Character name:", font=("Georgia", 20, "bold"), fill="#918e89") #720
-    load_character_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
-    cv.create_window(520, 720, window=load_character_entry)
+    # cv.create_text(263, 723, text="Character name:", font=("Georgia", 20, "bold"), fill="black")
+    # cv.create_text(260, 720, text="Character name:", font=("Georgia", 20, "bold"), fill="#918e89") #720
+    # load_character_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
+    # cv.create_window(520, 720, window=load_character_entry)
 
+    cv.create_text(353, 703, text="You can load a character that was already created \nbefore in the app. Choose the JSON file that \nrepresents the character you want to upload", font=("Georgia", 16, "bold"), fill="black")
+    cv.create_text(350, 700, text="You can load a character that was already created \nbefore in the app. Choose the JSON file that \nrepresents the character you want to upload", font=("Georgia", 16, "bold"), fill="#b0b0b0")
     # Load character button
-    load_character_button = tk.Button(random_build_screen_1, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Load character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2")
+    load_character_button = tk.Button(random_build_screen_1, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Load character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=open_file)
     load_character_button.image = button_photo
     cv.create_window(350, 797, window=load_character_button)
 

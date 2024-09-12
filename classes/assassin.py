@@ -121,6 +121,16 @@ class Assassin:
                 f"dexterity={self.dexterity}, "
                 f"vitality={self.vitality}, "
                 f"energy={self.energy}, "
-                f"skill_tree_1={self.skill_tree_1!r}, "
-                f"skill_tree_2={self.skill_tree_2!r}, "
-                f"skill_tree_3={self.skill_tree_3!r})")
+                f"skill_trees={self.skill_trees!r}")
+
+    def to_dict(self):
+        return {
+            "username": self.username,
+            "level": self.level,
+            "strength": self.strength,
+            "dexterity": self.dexterity,
+            "vitality": self.vitality,
+            "energy": self.energy,
+            "skill_trees": [st.to_dict() for st in self.skill_trees],
+            "skill_tree_dependencies": self.skill_tree_dependencies
+        }

@@ -10,3 +10,11 @@ class Skill:
                 f"prerequisites={[p.name for p in self.prerequisites]}, "
                 f"required_level={self.required_level}, "
                 f"base_level={self.base_level})")
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "prerequisites": [p.name for p in self.prerequisites],
+            "required_level": self.required_level,
+            "base_level": self.base_level
+        }
