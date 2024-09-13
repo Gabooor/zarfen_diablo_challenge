@@ -140,7 +140,7 @@ def load_character(filename):
         for skill_data, skill in zip(tree_data['skills'], skill_tree.skills):
             skill.base_level = skill_data['base_level']
     
-    print(character)
+    random_build(content_frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
 
 def create_new_character(character_class, is_randomized, name, canvas, error_text):
     if name == "":
@@ -170,14 +170,16 @@ def create_new_character(character_class, is_randomized, name, canvas, error_tex
     canvas.itemconfig(error_text, text="Successfully created character")
     canvas.itemconfig(error_text, fill="green")
 
+    random_build(content_frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
+
 # lambda: random_build(content_frames, top_subframe, bottom_subframe)
-def random_build_load_screen(frames, random_build_screen_1):
+def show_ch1_character_creation_screen(frames, screen):
     for frame in frames:
         frame.pack_forget()
 
     c_width = 1056
     c_height = 926
-    cv = tk.Canvas(random_build_screen_1, width=c_width, height=c_height, highlightthickness=0)
+    cv = tk.Canvas(screen, width=c_width, height=c_height, highlightthickness=0)
     # cv.create_text(0, 0, text="TESTING", font=("Georgia", 20, "bold"), fill="black")
     # cv.create_image(x, y, image=images[col][skill_count], anchor="nw")
     # cv.create_rectangle(0, 0, 30, 30, width=10, fill="black")
@@ -207,7 +209,7 @@ def random_build_load_screen(frames, random_build_screen_1):
     # class_left_frame = tk.Frame(class_frame, bg="purple")
     # class_left_frame.pack(side=tk.LEFT)
     # content_frames.append(class_left_frame)
-                     
+
     # class_right_frame = tk.Frame(class_frame, bg="pink")
     # class_right_frame.pack(side=tk.RIGHT)
     # content_frames.append(class_right_frame)
@@ -217,7 +219,7 @@ def random_build_load_screen(frames, random_build_screen_1):
     character_image = character_image.resize((239, 590), Image.Resampling.LANCZOS)
     character_photo = ImageTk.PhotoImage(character_image)
     
-    image_label = tk.Label(random_build_screen_1, image=character_photo, highlightthickness=0, bg="#0b0b09")
+    image_label = tk.Label(screen, image=character_photo, highlightthickness=0, bg="#0b0b09")
     cv.create_window(815, 400, window=image_label)
     image_label.image = character_photo
 
@@ -229,7 +231,7 @@ def random_build_load_screen(frames, random_build_screen_1):
     # Enter character name row
     cv.create_text(223, 223, text="Enter character name:", font=("Georgia", 20, "bold"), fill="black")
     cv.create_text(220, 220, text="Enter character name:", font=("Georgia", 20, "bold"), fill="#918e89")
-    create_character_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
+    create_character_entry = tk.Entry(screen, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
     cv.create_window(520, 220, window=create_character_entry)
 
     # Select a class row
@@ -237,7 +239,7 @@ def random_build_load_screen(frames, random_build_screen_1):
     cv.create_text(281, 270, text="Select a class:", font=("Georgia", 20, "bold"), fill="#918e89")
 
     classes = ["Sorceress", "Druid", "Amazon", "Paladin", "Barbarian", "Necromancer", "Assassin"]
-    class_combobox = ttk.Combobox(random_build_screen_1, values=classes, state="readonly", font=("Georgia", 16), cursor="hand2")
+    class_combobox = ttk.Combobox(screen, values=classes, state="readonly", font=("Georgia", 16), cursor="hand2")
     class_combobox.current(0)
     class_combobox.bind("<<ComboboxSelected>>", lambda event, c=class_combobox, i=image_label, : on_class_combobox_change(c, i))
     cv.create_window(501, 270, window=class_combobox, width=200)
@@ -251,13 +253,13 @@ def random_build_load_screen(frames, random_build_screen_1):
     cv.create_text(470, 400, text="If you want an absolutely random\nexperience,let the class to be\nrandomized as well.", font=("Georgia", 16, "bold"), fill="#b0b0b0")
     is_randomized_text = cv.create_text(160, 440, text="", font=("Georgia", 14, "bold"), fill="#07da63")
     checkbox_var = tk.BooleanVar()
-    checkbox = tk.Checkbutton(random_build_screen_1, text="Randomize class", font=("Georgia", 16, "bold"), variable=checkbox_var, command=lambda: on_class_checkbox_change(checkbox_var, class_combobox, cv, is_randomized_text), cursor="hand2", bg="#222222", fg="#b0b0b0")
+    checkbox = tk.Checkbutton(screen, text="Randomize class", font=("Georgia", 16, "bold"), variable=checkbox_var, command=lambda: on_class_checkbox_change(checkbox_var, class_combobox, cv, is_randomized_text), cursor="hand2", bg="#222222", fg="#b0b0b0")
     checkbox.image = button_photo
     cv.create_rectangle(49,378, 271, 422, fill="black")
     cv.create_window(160, 400, window=checkbox)
     
     # Create character button
-    create_character_button = tk.Button(random_build_screen_1, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Create character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=lambda: create_new_character(class_combobox.get(), checkbox_var.get(), create_character_entry.get(), cv, error_text))
+    create_character_button = tk.Button(screen, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Create character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=lambda: create_new_character(class_combobox.get(), checkbox_var.get(), create_character_entry.get(), cv, error_text))
     create_character_button.image = button_photo
     cv.create_window(350, 500, window=create_character_button)
     error_text = cv.create_text(350, 550, text="", font=("Georgia", 18, "bold"), fill="red")
@@ -277,30 +279,29 @@ def random_build_load_screen(frames, random_build_screen_1):
     cv.create_text(353, 703, text="You can load a character that was already created \nbefore in the app. Choose the JSON file that \nrepresents the character you want to upload", font=("Georgia", 16, "bold"), fill="black")
     cv.create_text(350, 700, text="You can load a character that was already created \nbefore in the app. Choose the JSON file that \nrepresents the character you want to upload", font=("Georgia", 16, "bold"), fill="#b0b0b0")
     # Load character button
-    load_character_button = tk.Button(random_build_screen_1, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Load character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=open_file)
+    load_character_button = tk.Button(screen, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Load character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=open_file)
     load_character_button.image = button_photo
     cv.create_window(350, 797, window=load_character_button)
 
-    random_build_screen_1.pack(fill=tk.BOTH, expand=True)
+    screen.pack(fill=tk.BOTH, expand=True)
 
-def random_build(frames, top_subframe, bottom_subframe):
-    # top_subframe.pack(fill=tk.BOTH, expand=True)
+# def show_ch1_main_screen(frames, screen):
+#     print("HI")
+#     random_build(frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
+
+
+skill_tree_background_photo = None
+images = None
+top_subframe_background_photo = None
+
+def random_build(frames, top_subframe, bottom_subframe, character):
 
     # Configure grid layout (3 columns)
     for i in range(3):
         top_subframe.grid_columnconfigure(i, weight=1)
 
-    maya = Sorceress("Maya")
-    adam = Druid("Adam")
-    mia = Amazon("mia")
-    paul = Paladin("Paul")
-    bryan = Barbarian("Bryan")
-    nimrod = Necromancer("Nimrod")
-    ashlin = Assassin("Ashlin")
-
-    character = adam
     # Add a widget that spans across the top 3 columns
-    merged_label = tk.Label(top_subframe, text=f"Your current {character.__class__.__name__} skill tree", bg="lightgreen", font=("Georgia", 16))
+    merged_label = tk.Label(top_subframe, text=f"Your current {character.__class__.__name__} skill tree", bg="black", fg="#b0b0b0", font=("Georgia", 18, "bold"))
     merged_label.grid(row=0, column=0, columnspan=3, pady=10)
 
     # Add a 3x6 grid in each cell of the second row of the top_subframe
@@ -320,7 +321,7 @@ def random_build(frames, top_subframe, bottom_subframe):
             path = f"skills/{character.skill_trees[i].character_class}/{character.skill_trees[i].name}/{formatted_name}.png"
             sub_image_paths.append(path)
         image_paths.append(sub_image_paths)
-
+    global images
     images = [[],[],[]]
 
     for i in range(3):
@@ -328,14 +329,16 @@ def random_build(frames, top_subframe, bottom_subframe):
             skill_image = Image.open(path)
             skill_image = skill_image.resize((70, 70), Image.Resampling.LANCZOS)
             skill_photo = ImageTk.PhotoImage(skill_image)
+            # skill_photo.image = skill_image
             images[i].append(skill_photo)
 
     # Define specific connections between buttons using pairs of coordinates
 
-    lines_path = "skill_tree_background.png"  # Path to your image file
-    lines_image = Image.open(lines_path)
+    skill_tree_background_path = "skill_tree_background.png"  # Path to your image file
+    skill_tree_background_image = Image.open(skill_tree_background_path)
     # lines_image = lines_image.resize((318, 627), Image.Resampling.LANCZOS)  # Resize the image to fit the frame
-    lines_photo = ImageTk.PhotoImage(lines_image)
+    global skill_tree_background_photo
+    skill_tree_background_photo = ImageTk.PhotoImage(skill_tree_background_image)
 
     skill_positions = []
     skill_tree_canvases = []
@@ -360,8 +363,8 @@ def random_build(frames, top_subframe, bottom_subframe):
         y_offset = (canvas_height - content_height) // 2
 
         # Add background image to the canvas, centered
-        canvas.create_image(0, 0, image=lines_photo, anchor="nw")
-
+        canvas.create_image(0, 0, image=skill_tree_background_photo, anchor="nw")
+            
         # Store button positions and references
         skill_image_positions = {}
 
@@ -392,7 +395,13 @@ def random_build(frames, top_subframe, bottom_subframe):
                 if layouts[col][r][c] == 1:
                     # Create skill button (image) on the canvas with offset
                     x, y = x_offset + 15 + c * 80, y_offset + 15 + r * 80
-                    canvas.create_image(x, y, image=images[col][skill_count], anchor="nw")
+
+                    # skill_image_label = tk.Label(top_subframe, image=images[col][skill_count], highlightthickness=0, bg="#0b0b09")
+                    # canvas.create_window(x, y, window=skill_image_label, anchor="nw")
+                    # skill_image_label.image = images[col][skill_count]
+                    image_object = canvas.create_image(x, y, image=images[col][skill_count], anchor="nw")
+                    # image_object.image = images[col][skill_count]
+                    # skill_image_objects[col].append(image_object)
                     rectangle = canvas.create_rectangle(0, 0, 0, 0, width=10, fill="black")
                     text = canvas.create_text(0, 0, font=("Courier New", 14, "bold"), fill="#cfc8b8")
                     # rectangle = canvas.create_rectangle(x+54, y+54, x+64, y+64, width=10, fill="black")
@@ -400,13 +409,17 @@ def random_build(frames, top_subframe, bottom_subframe):
                     skill_level_rectangles[col].append(rectangle)
                     skill_level_texts[col].append(text)
                     skill_count += 1
+        # for r in range(6):
+        #     for c in range(3):
+        #         print(skill_image_objects[col][skill_count])
+        #     print("")
+        canvas.create_text(canvas_width // 2+3, y_offset - 40 + 3, text=character.skill_trees[col].name, font=("Georgia", 20, "bold"), fill="black")
+        canvas.create_text(canvas_width // 2, y_offset - 40, text=character.skill_trees[col].name, font=("Georgia", 20, "bold"), fill="#918e89")
 
-        canvas.create_text(canvas_width // 2, y_offset - 40, text=character.skill_trees[col].name, font=("Georgia", 20, "bold"), fill="#cfc8b8")
-
-    import random
-    for i in range(3): # skill trees
-        for j, skill in enumerate(character.skill_trees[i].skills):
-            character.skill_trees[i].skills[j].base_level = random.randint(0, 99)
+    # import random
+    # for i in range(3): # skill trees
+    #     for j, skill in enumerate(character.skill_trees[i].skills):
+    #         character.skill_trees[i].skills[j].base_level = random.randint(0, 99)
 
     for i in range(3): # skill trees
         for j, skill in enumerate(character.skill_trees[i].skills):
@@ -437,23 +450,28 @@ def random_build(frames, top_subframe, bottom_subframe):
     lvl_up_image = lvl_up_image.resize((200, 40), Image.Resampling.LANCZOS)
     lvl_up_photo = ImageTk.PhotoImage(lvl_up_image)
     level_up_btn = tk.Button(bottom_subframe, text="Level up", image=lvl_up_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=200, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
+    level_up_btn.image = lvl_up_photo
     add_skill_btn = tk.Button(bottom_subframe, text="Add one skill", image=lvl_up_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=200, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
-
+    add_skill_btn.image = lvl_up_photo
+    
     undo_image = Image.open("button_110.png")
     undo_image = undo_image.resize((100, 40), Image.Resampling.LANCZOS)
     undo_photo = ImageTk.PhotoImage(undo_image)
     undo_btn = tk.Button(bottom_subframe, text="Undo", image=undo_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=100, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
+    undo_btn.image = undo_photo
 
     # Add additional buttons (unchanged)
     new_char_image = Image.open("button_300.png")
     new_char_image = new_char_image.resize((230, 40), Image.Resampling.LANCZOS)
     new_char_photo = ImageTk.PhotoImage(new_char_image)
     new_char_btn = tk.Button(bottom_subframe, text="New character", image=new_char_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=230, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
+    new_char_btn.image = new_char_photo
 
     import_char_image = Image.open("button_300.png")
     import_char_image = import_char_image.resize((230, 40), Image.Resampling.LANCZOS)
     import_char_photo = ImageTk.PhotoImage(import_char_image)
     import_char_btn = tk.Button(bottom_subframe, text="Import character", image=import_char_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=230, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
+    import_char_btn.image = import_char_photo
 
     # Place buttons in the bottom_subframe (unchanged)
     level_up_btn.grid(row=0, column=0, padx=10, pady=10, sticky="w")
@@ -501,20 +519,21 @@ main_menu_frame = tk.Frame(root, bg="yellow")
 content_frames.append(main_menu_frame)
 
 # --- Random Build --- #
-random_build_screen_1 = tk.Frame(root, bg="red")
-content_frames.append(random_build_screen_1)
-top_subframe = tk.Frame(root, bg="blue")
-content_frames.append(top_subframe)
-bottom_subframe = tk.Frame(root, bg="grey", height=350)
-content_frames.append(bottom_subframe)
+ch1_character_creation_screen = tk.Frame(root, bg="red")
+content_frames.append(ch1_character_creation_screen)
+
+ch1_main_top_screen = tk.Frame(root, bg="black")
+content_frames.append(ch1_main_top_screen)
+
+ch1_main_bottom_screen = tk.Frame(root, bg="black", height=350)
+content_frames.append(ch1_main_bottom_screen)
 
 main_menu(content_frames, main_menu_frame)
 
-# Add multiple buttons to the side panel
 buttons = ["Main Menu", "Random Build"]
 functions = [
     lambda: main_menu(content_frames, main_menu_frame), 
-    lambda: random_build_load_screen(content_frames, random_build_screen_1)
+    lambda: show_ch1_character_creation_screen(content_frames, ch1_character_creation_screen)
 ]
 button_image = tk.PhotoImage(file="button.png")
 for i in range(len(buttons)):
