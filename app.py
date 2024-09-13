@@ -443,7 +443,8 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     bottom_subframe.grid_rowconfigure(2, weight=1)
     bottom_subframe.grid_columnconfigure(0, weight=1)
     bottom_subframe.grid_columnconfigure(1, weight=0)
-    bottom_subframe.grid_columnconfigure(2, weight=1)
+    bottom_subframe.grid_columnconfigure(2, weight=0)
+    bottom_subframe.grid_columnconfigure(3, weight=1)
 
     # Add buttons to the bottom_subframe (unchanged)
     lvl_up_image = Image.open("button.png")
@@ -478,11 +479,93 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     add_skill_btn.grid(row=1, column=0, padx=10, pady=10, sticky="w")
     undo_btn.grid(row=2, column=0, padx=10, pady=10, sticky="w")
 
-    new_char_btn.grid(row=0, column=2, padx=10, pady=10, sticky="e")
-    import_char_btn.grid(row=1, column=2, padx=10, pady=10, sticky="e")
+    new_char_btn.grid(row=0, column=3, padx=10, pady=10, sticky="e")
+    import_char_btn.grid(row=1, column=3, padx=10, pady=10, sticky="e")
 
-    next_stats_label = tk.Label(bottom_subframe, text="Lv. 3 stats:\n1 strength\n3 dexterity\n0 vitality\n1 energy\n\nLv. 3 skill:\nIce Bolt", font=("Georgia", 10, "bold"), height=2, bg="grey", fg="white")
-    next_stats_label.grid(row=0, column=1, rowspan=3, padx=10, pady=10, sticky="nsew")
+    # next_stats_label = tk.Label(bottom_subframe, text=f"Current stats\n\n{character.strength} strength\n{character.dexterity} dexterity\n{character.vitality} vitality\n{character.energy} energy", font=("Georgia", 10, "bold"), height=2, bg="grey", fg="white")
+    # next_stats_label.grid(row=0, column=1, rowspan=3, padx=10, pady=10, sticky="nsew")
+
+
+    # ----
+    canvas_width, canvas_height = 185, 275
+    level_up_canvas = tk.Canvas(bottom_subframe, width=canvas_width, height=canvas_height, bg="white")
+    level_up_canvas.grid(row=0, column=2, pady=10, padx=10)
+
+    # Determine the total content size (based on 3x6 grid and button size)
+    content_width, content_height = 3 * 80, 6 * 80  # Each button is 80x80 including padding
+
+    # Calculate the offset for centering the content within the canvas
+    x_offset = (canvas_width - content_width) // 2
+    y_offset = (canvas_height - content_height) // 2
+
+    # Add background image to the canvas, centered
+
+    level_up_image = Image.open("character_load_background.png")
+    level_up_image = level_up_image.resize((185, 275), Image.Resampling.LANCZOS)
+    global level_up_photo
+    level_up_photo = ImageTk.PhotoImage(level_up_image)
+    level_up_canvas.create_image(0, 0, image=level_up_photo, anchor="nw")
+    level_up_canvas_width = level_up_canvas.winfo_reqwidth()
+    # Lv. X stats
+    offset = 19
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 15 + 3 + offset, text="Lv. 3 stats", font=("Georgia", 14, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 15 + offset, text="Lv. 3 stats", font=("Georgia", 14, "bold"), fill="#918e89")
+    # Strength
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 35 + 3 + offset, text="1 strength", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 35 + offset, text="1 strength", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # Dexterity
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 55 + 3 + offset, text="2 dexterity", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 55 + offset, text="2 dexterity", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # Vitality
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 75 + 3 + offset, text="0 vitality", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 75 + offset, text="0 vitality", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # Energy
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 95 + 3 + offset, text="2 energy", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 95 + offset, text="2 energy", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # Lv. X skill
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 135 + 3 + offset, text="Lv. 3 skill", font=("Georgia", 14, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 135 + offset, text="Lv. 3 skill", font=("Georgia", 14, "bold"), fill="#918e89")
+    # Skill name
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 155 + 3 + offset, text="Leap", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 155 + offset, text="Leap", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # ---- 
+    # ----
+    canvas_width, canvas_height = 185, 275
+    level_up_canvas = tk.Canvas(bottom_subframe, width=canvas_width, height=canvas_height, bg="white")
+    level_up_canvas.grid(row=0, column=1, pady=10, padx=10)
+
+    # Determine the total content size (based on 3x6 grid and button size)
+    content_width, content_height = 3 * 80, 6 * 80  # Each button is 80x80 including padding
+
+    # Calculate the offset for centering the content within the canvas
+    x_offset = (canvas_width - content_width) // 2
+    y_offset = (canvas_height - content_height) // 2
+
+    # Add background image to the canvas, centered
+
+    level_up_canvas.create_image(0, 0, image=level_up_photo, anchor="nw")
+    level_up_canvas_width = level_up_canvas.winfo_reqwidth()
+    # Lv. X stats
+    offset = 47
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 15 + 3 + offset, text="Current stats", font=("Georgia", 14, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 15 + offset, text="Current stats", font=("Georgia", 14, "bold"), fill="#918e89")
+    # Strength
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 35 + 3 + offset, text=f"{character.strength} strength", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 35 + offset, text=f"{character.strength} strength", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # Dexterity
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 55 + 3 + offset, text=f"{character.dexterity} dexterity", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 55 + offset, text=f"{character.dexterity} dexterity", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # Vitality
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 75 + 3 + offset, text=f"{character.vitality} vitality", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 75 + offset, text=f"{character.vitality} vitality", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # Energy
+    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 95 + 3 + offset, text=f"{character.energy} energy", font=("Georgia", 12, "bold"), fill="black")
+    level_up_canvas.create_text(level_up_canvas_width / 2, 95 + offset, text=f"{character.energy} energy", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    # ----
+    
+
+    # current_stats_label = tk.Label(bottom_subframe, text="Lv. 3 stats:\n1 strength\n3 dexterity\n0 vitality\n1 energy\n\nLv. 3 skill:\nIce Bolt", font=("Georgia", 10, "bold"), height=2, bg="grey", fg="white")
+    # current_stats_label.grid(row=0, column=2, rowspan=3, padx=10, pady=10, sticky="nsew")
     for frame in frames:
         frame.pack_forget()
     top_subframe.pack(fill=tk.BOTH, expand=True)
