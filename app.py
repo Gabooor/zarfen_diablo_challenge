@@ -489,7 +489,7 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     # ----
     canvas_width, canvas_height = 185, 275
     level_up_canvas = tk.Canvas(bottom_subframe, width=canvas_width, height=canvas_height, bg="white")
-    level_up_canvas.grid(row=0, column=2, pady=10, padx=10)
+    level_up_canvas.grid(row=0, column=2, rowspan=3, pady=10, padx=10)
 
     # Determine the total content size (based on 3x6 grid and button size)
     content_width, content_height = 3 * 80, 6 * 80  # Each button is 80x80 including padding
@@ -532,7 +532,7 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     # ----
     canvas_width, canvas_height = 185, 275
     level_up_canvas = tk.Canvas(bottom_subframe, width=canvas_width, height=canvas_height, bg="white")
-    level_up_canvas.grid(row=0, column=1, pady=10, padx=10)
+    level_up_canvas.grid(row=0, column=1, rowspan=3, pady=10, padx=10)
 
     # Determine the total content size (based on 3x6 grid and button size)
     content_width, content_height = 3 * 80, 6 * 80  # Each button is 80x80 including padding
@@ -563,6 +563,7 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     level_up_canvas.create_text(level_up_canvas_width / 2, 95 + offset, text=f"{character.energy} energy", font=("Georgia", 12, "bold"), fill="#b0b0b0")
     # ----
     
+    # TODO: create normal background texture for the current stats and level up stats canvases
 
     # current_stats_label = tk.Label(bottom_subframe, text="Lv. 3 stats:\n1 strength\n3 dexterity\n0 vitality\n1 energy\n\nLv. 3 skill:\nIce Bolt", font=("Georgia", 10, "bold"), height=2, bg="grey", fg="white")
     # current_stats_label.grid(row=0, column=2, rowspan=3, padx=10, pady=10, sticky="nsew")
