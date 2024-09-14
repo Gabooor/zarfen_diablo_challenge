@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 
 import json
 import os
+import random
 
 from classes.sorceress import Sorceress
 from classes.druid import Druid
@@ -142,6 +143,11 @@ def load_character(filename):
     
     random_build(content_frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
 
+def save_character(character):
+    with open(f"characters/{character.username}.json", 'w') as file:
+        json.dump(character.to_dict(), file, indent=2)
+
+
 def create_new_character(character_class, is_randomized, name, canvas, error_text):
     if name == "":
         canvas.itemconfig(error_text, text="You must provide a character name!")
@@ -165,12 +171,117 @@ def create_new_character(character_class, is_randomized, name, canvas, error_tex
         character = Necromancer(name)
     if character_class == "Assassin":
         character = Assassin(name)
-    with open(f"characters/{name}.json", 'w') as file:
-        json.dump(character.to_dict(), file, indent=2)
+    save_character(character)
     canvas.itemconfig(error_text, text="Successfully created character")
     canvas.itemconfig(error_text, fill="green")
 
     random_build(content_frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
+
+def level_up(character, current_stats_canvas, current_texts, level_up_canvas, next_texts, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles):
+    # --- Increase player level --- #
+    character.level += 1
+
+    # --- 5 random stat points' allocation --- #
+    # List of stat names for easier reference
+    stat_names = ['strength', 'dexterity', 'vitality', 'energy']
+    
+    # Initialize points distribution dictionary
+    points_distribution = {stat: 0 for stat in stat_names}
+    
+    # Randomly distribute 5 points
+    for _ in range(5):
+        chosen_stat = random.choice(stat_names)
+        points_distribution[chosen_stat] += 1
+
+    # Update the character's attributes
+    for stat, points in points_distribution.items():
+        if points > 0:
+            setattr(character, stat, getattr(character, stat) + points)
+    
+
+    # --- 1 random skill point's allocation --- #
+    # 1. collect possible skills based on level: if player_level >= skill.required_level + skill.base_level
+    # 2. check pre reqs for each possible skill - if any pre req's base level is 0, remove it from possible skills
+    # 3. check if skill's base level is 20
+
+    available_skills = []
+
+    # skill_trees = [character.skill_trees[0], character.skill_trees[1], character.skill_trees[2]]
+
+    # Get every skill that is available based on the character level vs the skill's level requirement. If player_level >= skill.required_level + skill.base_level, it is available.
+    temp_skill_list = []
+    for skill_tree in character.skill_trees:
+        for skill in skill_tree.skills:
+            if character.level >= skill.required_level + skill.base_level:
+                temp_skill_list.append(skill)
+    available_skills = temp_skill_list
+
+    # Get every skill that is available based on pre requisites. If the skill has a pre requisite that is not yet unlocked, it is not available yet.
+    temp_skill_list = []
+    for skill in available_skills:
+        if len(skill.prerequisites) == 0:
+            temp_skill_list.append(skill)
+        else:
+            available = True
+            for prereq_skill in skill.prerequisites:
+                if prereq_skill.base_level == 0:
+                    available = False
+            if available == True:
+                temp_skill_list.append(skill)
+
+    available_skills = temp_skill_list
+    
+    # Get every skill that is available based on skill level. If the skill's base_level is below 20, it is available.
+    temp_skill_list = []
+    for skill in available_skills:
+        if skill.base_level < 20:
+            temp_skill_list.append(skill)
+    available_skills = temp_skill_list
+
+
+
+    # for available_skill in available_skills:
+    #     print(available_skill)
+    chosen_skill = random.choice(available_skills)
+
+    for skill_tree in character.skill_trees:
+        for skill in skill_tree.skills:
+            if skill.name == chosen_skill.name:
+                skill.base_level += 1
+
+    print(points_distribution)
+    print(chosen_skill)
+
+    current_stats_canvas.itemconfig(current_texts[0], text=f"Lv. {character.level}")
+    current_stats_canvas.itemconfig(current_texts[1], text=f"Lv. {character.level}")
+    current_stats_canvas.itemconfig(current_texts[4], text=f"{character.strength} strength")
+    current_stats_canvas.itemconfig(current_texts[5], text=f"{character.strength} strength")
+    current_stats_canvas.itemconfig(current_texts[6], text=f"{character.dexterity} dexterity")
+    current_stats_canvas.itemconfig(current_texts[7], text=f"{character.dexterity} dexterity")
+    current_stats_canvas.itemconfig(current_texts[8], text=f"{character.vitality} vitality")
+    current_stats_canvas.itemconfig(current_texts[9], text=f"{character.vitality} vitality")
+    current_stats_canvas.itemconfig(current_texts[10], text=f"{character.energy} energy")
+    current_stats_canvas.itemconfig(current_texts[11], text=f"{character.energy} energy")
+
+    level_up_canvas.itemconfig(next_texts[0], text=f"Lv. {character.level} stats")
+    level_up_canvas.itemconfig(next_texts[1], text=f"Lv. {character.level} stats")
+    level_up_canvas.itemconfig(next_texts[2], text=f"{points_distribution['strength']} strength")
+    level_up_canvas.itemconfig(next_texts[3], text=f"{points_distribution['strength']} strength")
+    level_up_canvas.itemconfig(next_texts[4], text=f"{points_distribution['dexterity']} dexterity")
+    level_up_canvas.itemconfig(next_texts[5], text=f"{points_distribution['dexterity']} dexterity")
+    level_up_canvas.itemconfig(next_texts[6], text=f"{points_distribution['vitality']} vitality")
+    level_up_canvas.itemconfig(next_texts[7], text=f"{points_distribution['vitality']} vitality")
+    level_up_canvas.itemconfig(next_texts[8], text=f"{points_distribution['energy']} energy")
+    level_up_canvas.itemconfig(next_texts[9], text=f"{points_distribution['energy']} energy")
+    level_up_canvas.itemconfig(next_texts[10], text=f"Lv. {character.level} skill")
+    level_up_canvas.itemconfig(next_texts[11], text=f"Lv. {character.level} skill")
+    level_up_canvas.itemconfig(next_texts[12], text=f"{chosen_skill.name}")
+    level_up_canvas.itemconfig(next_texts[13], text=f"{chosen_skill.name}")
+
+    relocate_level_indicators(character, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles)
+
+    save_character(character)
+    return points_distribution, chosen_skill
 
 # lambda: random_build(content_frames, top_subframe, bottom_subframe)
 def show_ch1_character_creation_screen(frames, screen):
@@ -290,9 +401,20 @@ def show_ch1_character_creation_screen(frames, screen):
 #     random_build(frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
 
 
-skill_tree_background_photo = None
-images = None
-top_subframe_background_photo = None
+
+def relocate_level_indicators(character, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles):
+    for i in range(3):
+        for j, skill in enumerate(character.skill_trees[i].skills):
+            if skill.base_level > 0:
+                position = list(skill_positions[i].items())[j]
+                _, (a, b) = position
+                skill_tree_canvases[i].itemconfig(skill_level_texts[i][j], text=skill.base_level)
+                if skill.base_level < 10:
+                    skill_tree_canvases[i].coords(skill_level_texts[i][j], a+25, b+25)
+                    skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+22, b+20, a+30, b+30)
+                else:
+                    skill_tree_canvases[i].coords(skill_level_texts[i][j], a+20, b+25)
+                    skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+10, b+20, a+30, b+30)
 
 def random_build(frames, top_subframe, bottom_subframe, character):
 
@@ -399,7 +521,7 @@ def random_build(frames, top_subframe, bottom_subframe, character):
                     # skill_image_label = tk.Label(top_subframe, image=images[col][skill_count], highlightthickness=0, bg="#0b0b09")
                     # canvas.create_window(x, y, window=skill_image_label, anchor="nw")
                     # skill_image_label.image = images[col][skill_count]
-                    image_object = canvas.create_image(x, y, image=images[col][skill_count], anchor="nw")
+                    canvas.create_image(x, y, image=images[col][skill_count], anchor="nw")
                     # image_object.image = images[col][skill_count]
                     # skill_image_objects[col].append(image_object)
                     rectangle = canvas.create_rectangle(0, 0, 0, 0, width=10, fill="black")
@@ -409,35 +531,24 @@ def random_build(frames, top_subframe, bottom_subframe, character):
                     skill_level_rectangles[col].append(rectangle)
                     skill_level_texts[col].append(text)
                     skill_count += 1
-        # for r in range(6):
-        #     for c in range(3):
-        #         print(skill_image_objects[col][skill_count])
-        #     print("")
         canvas.create_text(canvas_width // 2+3, y_offset - 40 + 3, text=character.skill_trees[col].name, font=("Georgia", 20, "bold"), fill="black")
         canvas.create_text(canvas_width // 2, y_offset - 40, text=character.skill_trees[col].name, font=("Georgia", 20, "bold"), fill="#918e89")
 
-    # import random
-    # for i in range(3): # skill trees
+    relocate_level_indicators(character, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles)
+
+    # for i in range(3):
     #     for j, skill in enumerate(character.skill_trees[i].skills):
-    #         character.skill_trees[i].skills[j].base_level = random.randint(0, 99)
-
-    for i in range(3): # skill trees
-        for j, skill in enumerate(character.skill_trees[i].skills):
-            if skill.base_level > 0:
-                position = list(skill_positions[i].items())[j]
-                _, (a, b) = position
-                skill_tree_canvases[i].itemconfig(skill_level_texts[i][j], text=skill.base_level)
-                if skill.base_level < 10:
-                    skill_tree_canvases[i].coords(skill_level_texts[i][j], a+25, b+25)
-                    skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+22, b+20, a+30, b+30)
-                else:
-                    skill_tree_canvases[i].coords(skill_level_texts[i][j], a+20, b+25)
-                    skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+10, b+20, a+30, b+30)
+    #         if skill.base_level > 0:
+    #             position = list(skill_positions[i].items())[j]
+    #             _, (a, b) = position
+    #             skill_tree_canvases[i].itemconfig(skill_level_texts[i][j], text=skill.base_level)
+    #             if skill.base_level < 10:
+    #                 skill_tree_canvases[i].coords(skill_level_texts[i][j], a+25, b+25)
+    #                 skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+22, b+20, a+30, b+30)
+    #             else:
+    #                 skill_tree_canvases[i].coords(skill_level_texts[i][j], a+20, b+25)
+    #                 skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+10, b+20, a+30, b+30)
             
-
-    # Bottom Subframe Configuration (unchanged)
-    # bottom_subframe.pack(fill=tk.X)
-
     bottom_subframe.grid_rowconfigure(0, weight=1)
     bottom_subframe.grid_rowconfigure(1, weight=1)
     bottom_subframe.grid_rowconfigure(2, weight=1)
@@ -446,11 +557,14 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     bottom_subframe.grid_columnconfigure(2, weight=0)
     bottom_subframe.grid_columnconfigure(3, weight=1)
 
+    current_texts = []
+    next_texts = []
+
     # Add buttons to the bottom_subframe (unchanged)
     lvl_up_image = Image.open("button.png")
     lvl_up_image = lvl_up_image.resize((200, 40), Image.Resampling.LANCZOS)
     lvl_up_photo = ImageTk.PhotoImage(lvl_up_image)
-    level_up_btn = tk.Button(bottom_subframe, text="Level up", image=lvl_up_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=200, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
+    level_up_btn = tk.Button(bottom_subframe, text="Level up", image=lvl_up_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=200, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken", command=lambda: level_up(character, current_stats_canvas, current_texts, level_up_canvas, next_texts, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles))
     level_up_btn.image = lvl_up_photo
     add_skill_btn = tk.Button(bottom_subframe, text="Add one skill", image=lvl_up_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=200, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
     add_skill_btn.image = lvl_up_photo
@@ -485,11 +599,10 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     # next_stats_label = tk.Label(bottom_subframe, text=f"Current stats\n\n{character.strength} strength\n{character.dexterity} dexterity\n{character.vitality} vitality\n{character.energy} energy", font=("Georgia", 10, "bold"), height=2, bg="grey", fg="white")
     # next_stats_label.grid(row=0, column=1, rowspan=3, padx=10, pady=10, sticky="nsew")
 
-
     # ----
     canvas_width, canvas_height = 185, 275
-    level_up_canvas = tk.Canvas(bottom_subframe, width=canvas_width, height=canvas_height, bg="white")
-    level_up_canvas.grid(row=0, column=2, rowspan=3, pady=10, padx=10)
+    current_stats_canvas = tk.Canvas(bottom_subframe, width=canvas_width, height=canvas_height, bg="white")
+    current_stats_canvas.grid(row=0, column=1, rowspan=3, pady=10, padx=10)
 
     # Determine the total content size (based on 3x6 grid and button size)
     content_width, content_height = 3 * 80, 6 * 80  # Each button is 80x80 including padding
@@ -504,35 +617,44 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     level_up_image = level_up_image.resize((185, 275), Image.Resampling.LANCZOS)
     global level_up_photo
     level_up_photo = ImageTk.PhotoImage(level_up_image)
-    level_up_canvas.create_image(0, 0, image=level_up_photo, anchor="nw")
-    level_up_canvas_width = level_up_canvas.winfo_reqwidth()
-    # Lv. X stats
-    offset = 19
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 15 + 3 + offset, text="Lv. 3 stats", font=("Georgia", 14, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 15 + offset, text="Lv. 3 stats", font=("Georgia", 14, "bold"), fill="#918e89")
+    current_stats_canvas.create_image(0, 0, image=level_up_photo, anchor="nw")
+    current_stats_canvas_width = current_stats_canvas.winfo_reqwidth()
+    offset = 60
+    # Current level
+    current_level_text_1 = current_stats_canvas.create_text(current_stats_canvas_width / 2 + 3, 3 + 55, text=f"Level {character.level}", font=("Georgia", 14, "bold"), fill="black")
+    current_level_text_2 = current_stats_canvas.create_text(current_stats_canvas_width / 2, 55, text=f"Level {character.level}", font=("Georgia", 14, "bold"), fill="#918e89")
+    current_texts.append(current_level_text_1)
+    current_texts.append(current_level_text_2)
+    # Current stats
+    current_stats_1 = current_stats_canvas.create_text(current_stats_canvas_width / 2 + 3, 15 + 3 + offset, text="Current stats", font=("Georgia", 14, "bold"), fill="black")
+    current_stats_2 = current_stats_canvas.create_text(current_stats_canvas_width / 2, 15 + offset, text="Current stats", font=("Georgia", 14, "bold"), fill="#918e89")
+    current_texts.append(current_stats_1)
+    current_texts.append(current_stats_2)
     # Strength
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 35 + 3 + offset, text="1 strength", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 35 + offset, text="1 strength", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    current_strength_1 = current_stats_canvas.create_text(current_stats_canvas_width / 2 + 3, 35 + 3 + offset, text=f"{character.strength} strength", font=("Georgia", 12, "bold"), fill="black")
+    current_strength_2 = current_stats_canvas.create_text(current_stats_canvas_width / 2, 35 + offset, text=f"{character.strength} strength", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    current_texts.append(current_strength_1)
+    current_texts.append(current_strength_2)
     # Dexterity
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 55 + 3 + offset, text="2 dexterity", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 55 + offset, text="2 dexterity", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    current_dexterity_1 = current_stats_canvas.create_text(current_stats_canvas_width / 2 + 3, 55 + 3 + offset, text=f"{character.dexterity} dexterity", font=("Georgia", 12, "bold"), fill="black")
+    current_dexterity_2 = current_stats_canvas.create_text(current_stats_canvas_width / 2, 55 + offset, text=f"{character.dexterity} dexterity", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    current_texts.append(current_dexterity_1)
+    current_texts.append(current_dexterity_2)
     # Vitality
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 75 + 3 + offset, text="0 vitality", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 75 + offset, text="0 vitality", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    current_vitality_1 = current_stats_canvas.create_text(current_stats_canvas_width / 2 + 3, 75 + 3 + offset, text=f"{character.vitality} vitality", font=("Georgia", 12, "bold"), fill="black")
+    current_vitality_2 = current_stats_canvas.create_text(current_stats_canvas_width / 2, 75 + offset, text=f"{character.vitality} vitality", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    current_texts.append(current_vitality_1)
+    current_texts.append(current_vitality_2)
     # Energy
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 95 + 3 + offset, text="2 energy", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 95 + offset, text="2 energy", font=("Georgia", 12, "bold"), fill="#b0b0b0")
-    # Lv. X skill
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 135 + 3 + offset, text="Lv. 3 skill", font=("Georgia", 14, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 135 + offset, text="Lv. 3 skill", font=("Georgia", 14, "bold"), fill="#918e89")
-    # Skill name
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 155 + 3 + offset, text="Leap", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 155 + offset, text="Leap", font=("Georgia", 12, "bold"), fill="#b0b0b0")
-    # ---- 
+    current_energy_1 = current_stats_canvas.create_text(current_stats_canvas_width / 2 + 3, 95 + 3 + offset, text=f"{character.energy} energy", font=("Georgia", 12, "bold"), fill="black")
+    current_energy_2 = current_stats_canvas.create_text(current_stats_canvas_width / 2, 95 + offset, text=f"{character.energy} energy", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    current_texts.append(current_energy_1)
+    current_texts.append(current_energy_2)
+    # ----
     # ----
     canvas_width, canvas_height = 185, 275
     level_up_canvas = tk.Canvas(bottom_subframe, width=canvas_width, height=canvas_height, bg="white")
-    level_up_canvas.grid(row=0, column=1, rowspan=3, pady=10, padx=10)
+    level_up_canvas.grid(row=0, column=2, rowspan=3, pady=10, padx=10)
 
     # Determine the total content size (based on 3x6 grid and button size)
     content_width, content_height = 3 * 80, 6 * 80  # Each button is 80x80 including padding
@@ -542,26 +664,46 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     y_offset = (canvas_height - content_height) // 2
 
     # Add background image to the canvas, centered
-
     level_up_canvas.create_image(0, 0, image=level_up_photo, anchor="nw")
     level_up_canvas_width = level_up_canvas.winfo_reqwidth()
     # Lv. X stats
-    offset = 47
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 15 + 3 + offset, text="Current stats", font=("Georgia", 14, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 15 + offset, text="Current stats", font=("Georgia", 14, "bold"), fill="#918e89")
+    offset = 19
+    next_level_1 = level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 15 + 3 + offset, text="Lv. 3 stats", font=("Georgia", 14, "bold"), fill="black")
+    next_level_2 = level_up_canvas.create_text(level_up_canvas_width / 2, 15 + offset, text="Lv. 3 stats", font=("Georgia", 14, "bold"), fill="#918e89")
+    next_texts.append(next_level_1)
+    next_texts.append(next_level_2)
     # Strength
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 35 + 3 + offset, text=f"{character.strength} strength", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 35 + offset, text=f"{character.strength} strength", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    next_stats_1 = level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 35 + 3 + offset, text="1 strength", font=("Georgia", 12, "bold"), fill="black")
+    next_stats_2 = level_up_canvas.create_text(level_up_canvas_width / 2, 35 + offset, text="1 strength", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    next_texts.append(next_stats_1)
+    next_texts.append(next_stats_2)
     # Dexterity
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 55 + 3 + offset, text=f"{character.dexterity} dexterity", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 55 + offset, text=f"{character.dexterity} dexterity", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    next_stats_3 = level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 55 + 3 + offset, text="2 dexterity", font=("Georgia", 12, "bold"), fill="black")
+    next_stats_4 = level_up_canvas.create_text(level_up_canvas_width / 2, 55 + offset, text="2 dexterity", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    next_texts.append(next_stats_3)
+    next_texts.append(next_stats_4)
     # Vitality
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 75 + 3 + offset, text=f"{character.vitality} vitality", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 75 + offset, text=f"{character.vitality} vitality", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    next_stats_5 = level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 75 + 3 + offset, text="0 vitality", font=("Georgia", 12, "bold"), fill="black")
+    next_stats_6 = level_up_canvas.create_text(level_up_canvas_width / 2, 75 + offset, text="0 vitality", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    next_texts.append(next_stats_5)
+    next_texts.append(next_stats_6)
     # Energy
-    level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 95 + 3 + offset, text=f"{character.energy} energy", font=("Georgia", 12, "bold"), fill="black")
-    level_up_canvas.create_text(level_up_canvas_width / 2, 95 + offset, text=f"{character.energy} energy", font=("Georgia", 12, "bold"), fill="#b0b0b0")
-    # ----
+    next_stats_7 = level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 95 + 3 + offset, text="2 energy", font=("Georgia", 12, "bold"), fill="black")
+    next_stats_8 = level_up_canvas.create_text(level_up_canvas_width / 2, 95 + offset, text="2 energy", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    next_texts.append(next_stats_7)
+    next_texts.append(next_stats_8)
+    # Lv. X skill
+    next_level_3 = level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 135 + 3 + offset, text="Lv. 3 skill", font=("Georgia", 14, "bold"), fill="black")
+    next_level_4 = level_up_canvas.create_text(level_up_canvas_width / 2, 135 + offset, text="Lv. 3 skill", font=("Georgia", 14, "bold"), fill="#918e89")
+    next_texts.append(next_level_3)
+    next_texts.append(next_level_4)
+    # Skill name
+    next_skill_1 = level_up_canvas.create_text(level_up_canvas_width / 2 + 3, 155 + 3 + offset, text="Leap", font=("Georgia", 12, "bold"), fill="black")
+    next_skill_2 = level_up_canvas.create_text(level_up_canvas_width / 2, 155 + offset, text="Leap", font=("Georgia", 12, "bold"), fill="#b0b0b0")
+    next_texts.append(next_skill_1)
+    next_texts.append(next_skill_2)
+    # ---- 
+    
     
     # TODO: create normal background texture for the current stats and level up stats canvases
 

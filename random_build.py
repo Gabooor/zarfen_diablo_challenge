@@ -37,11 +37,11 @@ def level_up(character):
 
     available_skills = []
 
-    skill_trees = [character.skill_tree_1, character.skill_tree_2, character.skill_tree_3]
+    # skill_trees = [character.skill_trees[0], character.skill_trees[1], character.skill_trees[2]]
 
     # Get every skill that is available based on the character level vs the skill's level requirement. If player_level >= skill.required_level + skill.base_level, it is available.
     temp_skill_list = []
-    for skill_tree in skill_trees:
+    for skill_tree in character.skill_trees:
         for skill in skill_tree.skills:
             if character.level >= skill.required_level + skill.base_level:
                 temp_skill_list.append(skill)
@@ -75,7 +75,7 @@ def level_up(character):
     #     print(available_skill)
     chosen_skill = random.choice(available_skills)
 
-    for skill_tree in skill_trees:
+    for skill_tree in character.skill_trees:
         for skill in skill_tree.skills:
             if skill.name == chosen_skill.name:
                 skill.base_level += 1
