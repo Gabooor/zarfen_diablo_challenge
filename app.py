@@ -148,7 +148,9 @@ def save_character(character):
         json.dump(character.to_dict(), file, indent=2)
 
 
-def create_new_character(character_class, is_randomized, name, canvas, error_text):
+def create_new_character(character_class, is_randomized, name_entry, canvas, error_text):
+    name = name_entry.get()
+    name_entry.delete(0,tk.END)
     if name == "":
         canvas.itemconfig(error_text, text="You must provide a character name!")
         canvas.itemconfig(error_text, fill="red")
@@ -370,7 +372,7 @@ def show_ch1_character_creation_screen(frames, screen):
     cv.create_window(160, 400, window=checkbox)
     
     # Create character button
-    create_character_button = tk.Button(screen, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Create character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=lambda: create_new_character(class_combobox.get(), checkbox_var.get(), create_character_entry.get(), cv, error_text))
+    create_character_button = tk.Button(screen, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Create character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=lambda: create_new_character(class_combobox.get(), checkbox_var.get(), create_character_entry, cv, error_text))
     create_character_button.image = button_photo
     cv.create_window(350, 500, window=create_character_button)
     error_text = cv.create_text(350, 550, text="", font=("Georgia", 18, "bold"), fill="red")
@@ -579,7 +581,7 @@ def random_build(frames, top_subframe, bottom_subframe, character):
     new_char_image = Image.open("button_300.png")
     new_char_image = new_char_image.resize((230, 40), Image.Resampling.LANCZOS)
     new_char_photo = ImageTk.PhotoImage(new_char_image)
-    new_char_btn = tk.Button(bottom_subframe, text="New character", image=new_char_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=230, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
+    new_char_btn = tk.Button(bottom_subframe, text="New character", image=new_char_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=230, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken", command=lambda: show_ch1_character_creation_screen(content_frames, ch1_character_creation_screen))
     new_char_btn.image = new_char_photo
 
     import_char_image = Image.open("button_300.png")
