@@ -177,6 +177,9 @@ def create_new_character(character_class, is_randomized, name_entry, canvas, err
         character = Necromancer(name)
     if character_class == "Assassin":
         character = Assassin(name)
+    for skill_tree in character.skill_trees:
+        for skill in skill_tree.skills:
+            skill.base_level = 0
     save_character(character)
     canvas.itemconfig(error_text, text="Successfully created character")
     canvas.itemconfig(error_text, fill="green")
