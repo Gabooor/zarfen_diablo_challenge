@@ -16,21 +16,12 @@ from classes.assassin import Assassin
 
 content_frames = []
 
-
-def blend_image_with_background(image_path, bg_color=(255, 255, 255), opacity=0.1):
-    # Load the image with alpha channel (transparency)
-    image = Image.open(image_path).convert("RGBA")
-
-    # Create a background image with the same size and the specified background color
-    background = Image.new("RGBA", image.size, bg_color + (255,))
-
-    # Apply alpha blending between the image and the background
-    blended = Image.blend(background, image, opacity)
-
-    # Convert the image to a format Tkinter can work with
-    return ImageTk.PhotoImage(blended)
-
 def on_class_checkbox_change(is_randomized, combobox, canvas, is_randomized_text):
+    '''
+    When the "Randomize class" checkbock is ticked or unticked, this code will run.
+    
+    It sets the checkbox var to True or False, which is used upon character creation.
+    '''
     if is_randomized.get():
         combobox.config(state="disabled")
         canvas.itemconfig(is_randomized_text, text="Randomizing is enabled")
@@ -39,6 +30,11 @@ def on_class_checkbox_change(is_randomized, combobox, canvas, is_randomized_text
         canvas.itemconfig(is_randomized_text, text="")
 
 def on_class_combobox_change(combobox, image_label):
+    '''
+    When a new class is chosen, this code will run.
+
+    It changes the display image for the class.
+    '''
     selected_value = combobox.get().lower()
 
     character_image = Image.open(f"char_images/{selected_value}.png")
@@ -50,6 +46,9 @@ def on_class_combobox_change(combobox, image_label):
     image_label.focus_set()
 
 def main_menu(frames, main_menu_screen):
+    '''
+    This function creates the main menu.
+    '''
     for frame in frames:
         frame.pack_forget()
     c_width = 1056
@@ -57,10 +56,7 @@ def main_menu(frames, main_menu_screen):
     cv_menu = tk.Canvas(main_menu_screen, width=c_width, height=c_height, highlightthickness=0)
     cl_background_image_path = "character_load_background.png"
     cl_background_image = Image.open(cl_background_image_path)
-    # cl_background_image = cl_background_image.resize((1060, 590), Image.Resampling.LANCZOS)
     cl_photo = ImageTk.PhotoImage(cl_background_image)
-    # cl_background_image_path = Image.open("character_load_background.png")
-    # cl_photo = ImageTk.PhotoImage(character_load_background)
 
     cv_menu.create_image(0, 0, image=cl_photo, anchor="nw")
     cv_menu.pack(fill=tk.BOTH, expand=True)
@@ -96,6 +92,9 @@ def main_menu(frames, main_menu_screen):
     main_menu_screen.pack(fill=tk.BOTH, expand=True)
 
 def open_file():
+    '''
+    This is used when loading an already existing character. It calls the load_character function which will read the json file retrieved in this function.
+    '''
     # Define the initial directory
     initial_dir = 'characters'  # Change this to your desired directory
 
@@ -109,6 +108,9 @@ def open_file():
         load_character(file_path)
 
 def load_character(filename):
+    '''
+    This function loads an already existing character using its json file.
+    '''
     with open(filename, 'r') as file:
         data = json.load(file)
     
@@ -144,11 +146,18 @@ def load_character(filename):
     show_ch1_main_screen(content_frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
 
 def save_character(character):
+    '''
+    This function saves a character into its own json file.
+    Every change triggers this functions, so that even if the app crashes, the progress is saved.
+    '''
     with open(f"characters/{character.username}.json", 'w') as file:
         json.dump(character.to_dict(), file, indent=2)
 
 
 def create_new_character(character_class, is_randomized, name_entry, canvas, error_text):
+    '''
+    This function creates a new character based on the character creation menu's parameters.
+    '''
     name = name_entry.get()
     name_entry.delete(0,tk.END)
     if name == "":
@@ -190,6 +199,9 @@ def create_new_character(character_class, is_randomized, name_entry, canvas, err
     show_ch1_main_screen(content_frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
 
 def add_one_skill(character, current_stats_canvas, current_texts, level_up_canvas, next_texts, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles, lvlup=True):
+    '''
+    This function chooses one skill from the character's available skills (aka skills that are allowed to be upgraded). This is mainly for quest rewards, like Akara's first quest.
+    '''
     try:
         # --- 1 random skill point's allocation --- #
         # 1. collect possible skills based on level: if player_level >= skill.required_level + skill.base_level
@@ -270,6 +282,9 @@ def add_one_skill(character, current_stats_canvas, current_texts, level_up_canva
 
 
 def level_up(character, current_stats_canvas, current_texts, level_up_canvas, next_texts, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles):
+    '''
+    This function chooses 5 random stats and 1 random skill for the character.
+    '''
     # --- Increase player level --- #
     character.level += 1
 
@@ -324,49 +339,24 @@ def level_up(character, current_stats_canvas, current_texts, level_up_canvas, ne
 
     save_character(character)
 
-# lambda: random_build(content_frames, top_subframe, bottom_subframe)
 def show_ch1_character_creation_screen(frames, screen):
+    '''
+    This function builds the random build challenge's character creation menu.
+    '''
     for frame in frames:
         frame.pack_forget()
 
     c_width = 1056
     c_height = 926
     cv = tk.Canvas(screen, width=c_width, height=c_height, highlightthickness=0)
-    # cv.create_text(0, 0, text="TESTING", font=("Georgia", 20, "bold"), fill="black")
-    # cv.create_image(x, y, image=images[col][skill_count], anchor="nw")
-    # cv.create_rectangle(0, 0, 30, 30, width=10, fill="black")
-
-    # path = "char_images/sorceress.png"
-    # character_image = Image.open(path)
-    # character_image = character_image.resize((239, 590), Image.Resampling.LANCZOS)
-    # character_photo = ImageTk.PhotoImage(character_image)
-    # 0b0b09
     cl_background_image_path = "character_load_background.png"
     cl_background_image = Image.open(cl_background_image_path)
-    # cl_background_image = cl_background_image.resize((1060, 590), Image.Resampling.LANCZOS)
     cl_photo = ImageTk.PhotoImage(cl_background_image)
-    # cl_background_image_path = Image.open("character_load_background.png")
-    # cl_photo = ImageTk.PhotoImage(character_load_background)
 
     cv.create_image(0, 0, image=cl_photo, anchor="nw")
     cv.pack(fill=tk.BOTH, expand=True)
     cv.image = cl_photo
     
-    
-    # # Class setup
-    # class_frame = tk.Frame(random_build_screen_1, bg="yellow")
-    # class_frame.pack(padx=20, pady=20)
-    # content_frames.append(class_frame)
-
-    # class_left_frame = tk.Frame(class_frame, bg="purple")
-    # class_left_frame.pack(side=tk.LEFT)
-    # content_frames.append(class_left_frame)
-
-    # class_right_frame = tk.Frame(class_frame, bg="pink")
-    # class_right_frame.pack(side=tk.RIGHT)
-    # content_frames.append(class_right_frame)
-
-    # Class setup - Right
     character_image = Image.open("char_images/sorceress.png")
     character_image = character_image.resize((239, 590), Image.Resampling.LANCZOS)
     character_photo = ImageTk.PhotoImage(character_image)
@@ -378,7 +368,6 @@ def show_ch1_character_creation_screen(frames, screen):
     # Character creation row
     cv.create_text(354, 124, text="Create character", font=("Georgia", 30, "bold"), fill="black")
     cv.create_text(350, 120, text="Create character", font=("Georgia", 30, "bold"), fill="#b0b0b0")
-
 
     # Enter character name row
     cv.create_text(223, 223, text="Enter character name:", font=("Georgia", 20, "bold"), fill="black")
@@ -422,15 +411,9 @@ def show_ch1_character_creation_screen(frames, screen):
     cv.create_text(354, 624, text="Load character", font=("Georgia", 30, "bold"), fill="black")
     cv.create_text(350, 620, text="Load character", font=("Georgia", 30, "bold"), fill="#b0b0b0")
     
-
-    # Enter character name row
-    # cv.create_text(263, 723, text="Character name:", font=("Georgia", 20, "bold"), fill="black")
-    # cv.create_text(260, 720, text="Character name:", font=("Georgia", 20, "bold"), fill="#918e89") #720
-    # load_character_entry = tk.Entry(random_build_screen_1, width=18, font=("Georgia", 16), bg="#222222", fg="#b0b0b0")
-    # cv.create_window(520, 720, window=load_character_entry)
-
     cv.create_text(353, 703, text="You can load a character that was already created \nbefore in the app. Choose the JSON file that \nrepresents the character you want to upload", font=("Georgia", 16, "bold"), fill="black")
     cv.create_text(350, 700, text="You can load a character that was already created \nbefore in the app. Choose the JSON file that \nrepresents the character you want to upload", font=("Georgia", 16, "bold"), fill="#b0b0b0")
+    
     # Load character button
     load_character_button = tk.Button(screen, image=button_photo, compound="center", fg="#cfc8b8", bg="#100605", text="Load character", font=("Georgia", 14, "bold"),  borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", cursor="hand2", command=open_file)
     load_character_button.image = button_photo
@@ -439,6 +422,10 @@ def show_ch1_character_creation_screen(frames, screen):
     screen.pack(fill=tk.BOTH, expand=True)
 
 def relocate_level_indicators(character, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles):
+    '''
+    This function will move the character level indicators based on their values. This is needed because numbers above 9 take up 2 characters, so they need adjusting.
+    NOTE: It is not implemented for 99+, it might look dumb and might need to implement that later.
+    '''
     for i in range(3):
         for j, skill in enumerate(character.skill_trees[i].skills):
             if skill.base_level > 0:
@@ -453,6 +440,10 @@ def relocate_level_indicators(character, skill_tree_canvases, skill_positions, s
                     skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+10, b+20, a+30, b+30)
 
 def show_ch1_main_screen(frames, top_subframe, bottom_subframe, character):
+    '''
+    This function builds the random build challenge's main screen.
+    It shows the characters current skill trees, stats, etc. 
+    '''
     # Configure grid layout (3 columns)
     for widget in top_subframe.winfo_children():
         widget.destroy()
@@ -552,19 +543,10 @@ def show_ch1_main_screen(frames, top_subframe, bottom_subframe, character):
         for r in range(6):
             for c in range(3):
                 if layouts[col][r][c] == 1:
-                    # Create skill button (image) on the canvas with offset
                     x, y = x_offset + 15 + c * 80, y_offset + 15 + r * 80
-
-                    # skill_image_label = tk.Label(top_subframe, image=images[col][skill_count], highlightthickness=0, bg="#0b0b09")
-                    # canvas.create_window(x, y, window=skill_image_label, anchor="nw")
-                    # skill_image_label.image = images[col][skill_count]
                     canvas.create_image(x, y, image=images[col][skill_count], anchor="nw")
-                    # image_object.image = images[col][skill_count]
-                    # skill_image_objects[col].append(image_object)
                     rectangle = canvas.create_rectangle(0, 0, 0, 0, width=10, fill="black")
                     text = canvas.create_text(0, 0, font=("Courier New", 14, "bold"), fill="#cfc8b8")
-                    # rectangle = canvas.create_rectangle(x+54, y+54, x+64, y+64, width=10, fill="black")
-                    # text = canvas.create_text(x+60, y+60, text="+", font=("Courier New", 14), fill="#cfc8b8")
                     skill_level_rectangles[col].append(rectangle)
                     skill_level_texts[col].append(text)
                     skill_count += 1
@@ -572,20 +554,7 @@ def show_ch1_main_screen(frames, top_subframe, bottom_subframe, character):
         canvas.create_text(canvas_width // 2, y_offset - 40, text=character.skill_trees[col].name, font=("Georgia", 20, "bold"), fill="#918e89")
 
     relocate_level_indicators(character, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles)
-
-    # for i in range(3):
-    #     for j, skill in enumerate(character.skill_trees[i].skills):
-    #         if skill.base_level > 0:
-    #             position = list(skill_positions[i].items())[j]
-    #             _, (a, b) = position
-    #             skill_tree_canvases[i].itemconfig(skill_level_texts[i][j], text=skill.base_level)
-    #             if skill.base_level < 10:
-    #                 skill_tree_canvases[i].coords(skill_level_texts[i][j], a+25, b+25)
-    #                 skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+22, b+20, a+30, b+30)
-    #             else:
-    #                 skill_tree_canvases[i].coords(skill_level_texts[i][j], a+20, b+25)
-    #                 skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+10, b+20, a+30, b+30)
-            
+   
     bottom_subframe.grid_rowconfigure(0, weight=1)
     bottom_subframe.grid_rowconfigure(1, weight=1)
     bottom_subframe.grid_rowconfigure(2, weight=1)
@@ -632,9 +601,6 @@ def show_ch1_main_screen(frames, top_subframe, bottom_subframe, character):
 
     new_char_btn.grid(row=0, column=3, padx=10, pady=10, sticky="e")
     import_char_btn.grid(row=1, column=3, padx=10, pady=10, sticky="e")
-
-    # next_stats_label = tk.Label(bottom_subframe, text=f"Current stats\n\n{character.strength} strength\n{character.dexterity} dexterity\n{character.vitality} vitality\n{character.energy} energy", font=("Georgia", 10, "bold"), height=2, bg="grey", fg="white")
-    # next_stats_label.grid(row=0, column=1, rowspan=3, padx=10, pady=10, sticky="nsew")
 
     # ----
     canvas_width, canvas_height = 185, 275
