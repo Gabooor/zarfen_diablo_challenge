@@ -163,6 +163,9 @@ def create_new_character(character_class, is_randomized, name_entry, canvas, err
         canvas.itemconfig(error_text, text="You already have a character with that name!")
         canvas.itemconfig(error_text, fill="red")
         return
+    classes = ["Sorceress", "Druid", "Amazon", "Paladin", "Barbarian", "Necromancer", "Assassin"]
+    if is_randomized == True:
+        character_class = classes[random.randint(0,6)]
     if character_class == "Sorceress":
         character = Sorceress(name)
     if character_class == "Druid":
@@ -402,6 +405,7 @@ def show_ch1_character_creation_screen(frames, screen):
     cv.create_text(470, 400, text="If you want an absolutely random\nexperience,let the class to be\nrandomized as well.", font=("Georgia", 16, "bold"), fill="#b0b0b0")
     is_randomized_text = cv.create_text(160, 440, text="", font=("Georgia", 14, "bold"), fill="#07da63")
     checkbox_var = tk.BooleanVar()
+    checkbox_var.set(False)
     checkbox = tk.Checkbutton(screen, text="Randomize class", font=("Georgia", 16, "bold"), variable=checkbox_var, command=lambda: on_class_checkbox_change(checkbox_var, class_combobox, cv, is_randomized_text), cursor="hand2", bg="#222222", fg="#b0b0b0")
     checkbox.image = button_photo
     cv.create_rectangle(49,378, 271, 422, fill="black")
@@ -434,12 +438,6 @@ def show_ch1_character_creation_screen(frames, screen):
 
     screen.pack(fill=tk.BOTH, expand=True)
 
-# def show_ch1_main_screen(frames, screen):
-#     print("HI")
-#     random_build(frames, ch1_main_top_screen, ch1_main_bottom_screen, character)
-
-
-
 def relocate_level_indicators(character, skill_tree_canvases, skill_positions, skill_level_texts, skill_level_rectangles):
     for i in range(3):
         for j, skill in enumerate(character.skill_trees[i].skills):
@@ -455,8 +453,9 @@ def relocate_level_indicators(character, skill_tree_canvases, skill_positions, s
                     skill_tree_canvases[i].coords(skill_level_rectangles[i][j], a+10, b+20, a+30, b+30)
 
 def show_ch1_main_screen(frames, top_subframe, bottom_subframe, character):
-
     # Configure grid layout (3 columns)
+    for widget in top_subframe.winfo_children():
+        widget.destroy()
     for i in range(3):
         top_subframe.grid_columnconfigure(i, weight=1)
 
@@ -610,7 +609,7 @@ def show_ch1_main_screen(frames, top_subframe, bottom_subframe, character):
     undo_image = Image.open("button_110.png")
     undo_image = undo_image.resize((100, 40), Image.Resampling.LANCZOS)
     undo_photo = ImageTk.PhotoImage(undo_image)
-    undo_btn = tk.Button(bottom_subframe, text="Undo", image=undo_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=100, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken")
+    undo_btn = tk.Button(bottom_subframe, text="Undo", image=undo_photo, font=("Georgia", 10, "bold"), compound="center", fg="#cfc8b8", bg="#100605", width=100, height=40, borderwidth=0, highlightcolor="#100605", highlightbackground="#100605", relief="sunken", state="disabled")
     undo_btn.image = undo_photo
 
     # Add additional buttons (unchanged)
