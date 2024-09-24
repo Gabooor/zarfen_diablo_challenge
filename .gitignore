@@ -1,2 +1,3 @@
 *.pyc
 characters/*
+!characters/.gitkeep
