@@ -1,5 +1,6 @@
+from classes.character_class import CharacterClass
 from skill import Skill
-from skill_tree import Skill_Tree
+from skill_tree import SkillTree
 
 # Defensive Auras
 prayer = Skill("Prayer", [], 1, 0)
@@ -13,22 +14,11 @@ meditation = Skill("Meditation", [cleansing], 24, 0)
 redemption = Skill("Redemption", [vigor], 30, 0)
 salvation = Skill("Salvation", [], 30, 0)
 
-paladin_defensive_auras_tree = Skill_Tree(
-    "Defensive Auras", 
-    "Paladin", 
-    [
-        prayer, 
-        resist_fire, 
-        defiance, 
-        resist_cold, 
-        cleansing, 
-        resist_lightning, 
-        vigor, 
-        meditation, 
-        redemption, 
-        salvation
-    ],
-    layout=[[1,0,1],[0,1,1],[1,0,1],[0,1,0],[1,0,0],[0,1,1]]
+paladin_defensive_auras_tree = SkillTree(
+    "Defensive Auras",
+    "Paladin",
+    [prayer, resist_fire, defiance, resist_cold, cleansing, resist_lightning, vigor, meditation, redemption, salvation],
+    layout=[[1, 0, 1], [0, 1, 1], [1, 0, 1], [0, 1, 0], [1, 0, 0], [0, 1, 1]],
 )
 
 # Offensive Auras
@@ -43,22 +33,11 @@ sanctuary = Skill("Sanctuary", [thorns, holy_freeze], 24, 0)
 fanaticism = Skill("Fanaticism", [concentration], 30, 0)
 conviction = Skill("Conviction", [sanctuary], 30, 0)
 
-paladin_offensive_auras_tree = Skill_Tree(
-    "Offensive Auras", 
-    "Paladin", 
-    [
-        might, 
-        holy_fire, 
-        thorns, 
-        blessed_aim, 
-        concentration, 
-        holy_freeze, 
-        holy_shock, 
-        sanctuary, 
-        fanaticism, 
-        conviction
-    ],
-    layout=[[1,0,0],[0,1,1],[1,0,0],[1,1,0],[0,1,1],[1,0,1]]
+paladin_offensive_auras_tree = SkillTree(
+    "Offensive Auras",
+    "Paladin",
+    [might, holy_fire, thorns, blessed_aim, concentration, holy_freeze, holy_shock, sanctuary, fanaticism, conviction],
+    layout=[[1, 0, 0], [0, 1, 1], [1, 0, 0], [1, 1, 0], [0, 1, 1], [1, 0, 1]],
 )
 
 # Combat Skills
@@ -73,63 +52,65 @@ conversion = Skill("Conversion", [vengeance], 24, 0)
 holy_shield = Skill("Holy Shield", [charge, blessed_hammer], 24, 0)
 fist_of_the_heavens = Skill("Fist of the Heavens", [blessed_hammer, conversion], 30, 0)
 
-paladin_combat_skills_tree = Skill_Tree(
-    "Combat Skills", 
-    "Paladin", 
+paladin_combat_skills_tree = SkillTree(
+    "Combat Skills",
+    "Paladin",
     [
-        sacrifice, 
-        smite, 
-        holy_bolt, 
-        zeal, 
-        charge, 
-        vengeance, 
-        blessed_hammer, 
-        conversion, 
-        holy_shield, 
-        fist_of_the_heavens
+        sacrifice,
+        smite,
+        holy_bolt,
+        zeal,
+        charge,
+        vengeance,
+        blessed_hammer,
+        conversion,
+        holy_shield,
+        fist_of_the_heavens,
     ],
-    layout=[[1,0,1],[0,1,0],[1,0,1],[1,1,0],[1,0,1],[0,1,0]]
+    layout=[[1, 0, 1], [0, 1, 0], [1, 0, 1], [1, 1, 0], [1, 0, 1], [0, 1, 0]],
 )
-class Paladin:
-    def __init__(self, username, level = 1, strength = 25, dexterity = 20, vitality = 25, energy = 15):
-        self.username = username
 
-        self.level = level
 
-        self.strength = strength
-        self.dexterity = dexterity
-        self.vitality = vitality
-        self.energy = energy
+class Paladin(CharacterClass):
+    def __init__(
+        self,
+        username: str,
+        level: int = 1,
+        strength: int = 25,
+        dexterity: int = 20,
+        vitality: int = 25,
+        energy: int = 15,
+    ):
+        super().__init__("Paladin", username, level, strength, dexterity, vitality, energy)
 
-        self.skill_trees = [
-            paladin_defensive_auras_tree,
-            paladin_offensive_auras_tree,
-            paladin_combat_skills_tree    
+    @property
+    def skill_trees(self):
+        return [paladin_defensive_auras_tree, paladin_offensive_auras_tree, paladin_combat_skills_tree]
+
+    @property
+    def skill_tree_dependencies(self):
+        return [
+            [[[0, 0], [2, 0]], [[1, 1], [3, 1]], [[2, 0], [3, 1]], [[2, 0], [4, 0]], [[3, 1], [5, 1]]],
+            [
+                [[0, 0], [1, 1]],
+                [[0, 0], [2, 0]],
+                [[1, 1], [3, 1]],
+                [[1, 2], [4, 2]],
+                [[2, 0], [3, 0]],
+                [[3, 0], [5, 0]],
+                [[3, 1], [4, 1]],
+                [[3, 1], [4, 2]],
+                [[4, 2], [5, 2]],
+            ],
+            [
+                [[0, 0], [2, 0]],
+                [[0, 2], [2, 2]],
+                [[1, 1], [3, 1]],
+                [[2, 0], [3, 0]],
+                [[2, 2], [4, 2]],
+                [[3, 0], [4, 0]],
+                [[3, 1], [4, 2]],
+                [[3, 1], [5, 1]],
+                [[4, 0], [5, 1]],
+            ],
         ]
-
-        self.skill_tree_dependencies = [
-            [[[0, 0], [2, 0]], [[1, 1], [3, 1]], [[2, 0], [3, 1]], [[2, 0], [4, 0]], [[3, 1], [5, 1]]], 
-            [[[0, 0], [1, 1]], [[0, 0], [2, 0]], [[1, 1], [3, 1]], [[1, 2], [4, 2]], [[2, 0], [3, 0]], [[3, 0], [5, 0]], [[3, 1], [4, 1]], [[3, 1], [4, 2]], [[4, 2], [5, 2]]], 
-            [[[0, 0], [2, 0]], [[0, 2], [2, 2]], [[1, 1], [3, 1]], [[2, 0], [3, 0]], [[2, 2], [4, 2]], [[3, 0], [4, 0]], [[3, 1], [4, 2]], [[3, 1], [5, 1]],[[4, 0], [5, 1]]]
-        ]
-
-    def __repr__(self):
-        return (f"Paladin(username={self.username!r}, "
-                f"level={self.level}, "
-                f"strength={self.strength}, "
-                f"dexterity={self.dexterity}, "
-                f"vitality={self.vitality}, "
-                f"energy={self.energy}, "
-                f"skill_trees={self.skill_trees!r}")
-
-    def to_dict(self):
-        return {
-            "username": self.username,
-            "level": self.level,
-            "strength": self.strength,
-            "dexterity": self.dexterity,
-            "vitality": self.vitality,
-            "energy": self.energy,
-            "skill_trees": [st.to_dict() for st in self.skill_trees],
-            "skill_tree_dependencies": self.skill_tree_dependencies
-        }

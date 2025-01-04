@@ -1,5 +1,7 @@
+from classes.character_class import CharacterClass
+
 from skill import Skill
-from skill_tree import Skill_Tree
+from skill_tree import SkillTree
 
 # Javelin and Spear
 jab = Skill("Jab", [], 1, 0)
@@ -13,22 +15,22 @@ fend = Skill("Fend", [impale], 24, 0)
 lightning_strike = Skill("Lightning Strike", [charged_strike], 30, 0)
 lightning_fury = Skill("Lightning Fury", [plague_javelin], 30, 0)
 
-amazon_javelin_and_spear_tree = Skill_Tree(
-    "Javelin and Spear", 
-    "Amazon", 
+amazon_javelin_and_spear_tree = SkillTree(
+    "Javelin and Spear",
+    "Amazon",
     [
-        jab, 
-        power_strike, 
-        poison_javelin, 
-        impale, 
-        lightning_bolt, 
-        charged_strike, 
-        plague_javelin, 
-        fend, 
-        lightning_strike, 
-        lightning_fury
+        jab,
+        power_strike,
+        poison_javelin,
+        impale,
+        lightning_bolt,
+        charged_strike,
+        plague_javelin,
+        fend,
+        lightning_strike,
+        lightning_fury,
     ],
-    layout=[[1,0,0],[0,1,1],[1,0,1],[0,1,1],[1,0,0],[0,1,1]]
+    layout=[[1, 0, 0], [0, 1, 1], [1, 0, 1], [0, 1, 1], [1, 0, 0], [0, 1, 1]],
 )
 
 # Passive and Magic
@@ -43,22 +45,11 @@ evade = Skill("Evade", [avoid], 24, 0)
 valkyrie = Skill("Valkyrie", [decoy], 30, 0)
 pierce = Skill("Pierce", [penetrate], 30, 0)
 
-amazon_passive_and_magic_tree = Skill_Tree(
-    "Passive and Magic", 
-    "Amazon", 
-    [
-        inner_sight, 
-        critical_strike, 
-        dodge, 
-        slow_missiles, 
-        avoid, 
-        penetrate, 
-        decoy, 
-        evade, 
-        valkyrie, 
-        pierce
-    ],
-    layout=[[1,0,1],[0,1,0],[1,1,0],[0,0,1],[1,1,0],[1,0,1]]
+amazon_passive_and_magic_tree = SkillTree(
+    "Passive and Magic",
+    "Amazon",
+    [inner_sight, critical_strike, dodge, slow_missiles, avoid, penetrate, decoy, evade, valkyrie, pierce],
+    layout=[[1, 0, 1], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 1, 0], [1, 0, 1]],
 )
 
 # Bow and Crossbow
@@ -72,63 +63,74 @@ guided_arrow = Skill("Guided Arrow", [cold_arrow, multiple_shot], 18, 0)
 strafe = Skill("Strafe", [guided_arrow], 24, 0)
 immolation_arrow = Skill("Immolation Arrow", [exploding_arrow], 24, 0)
 freezing_arrow = Skill("Freezing Arrow", [ice_arrow], 30, 0)
-amazon_bow_and_crossbow_tree = Skill_Tree(
-    "Bow and Crossbow", 
-    "Amazon", 
+amazon_bow_and_crossbow_tree = SkillTree(
+    "Bow and Crossbow",
+    "Amazon",
     [
-        magic_arrow, 
-        fire_arrow, 
-        cold_arrow, 
-        multiple_shot, 
-        exploding_arrow, 
-        ice_arrow, 
-        guided_arrow, 
-        strafe, 
-        immolation_arrow, 
-        freezing_arrow
+        magic_arrow,
+        fire_arrow,
+        cold_arrow,
+        multiple_shot,
+        exploding_arrow,
+        ice_arrow,
+        guided_arrow,
+        strafe,
+        immolation_arrow,
+        freezing_arrow,
     ],
-    layout=[[0,1,1],[1,1,0],[0,0,1],[1,1,0],[0,1,1],[1,0,0]]
+    layout=[[0, 1, 1], [1, 1, 0], [0, 0, 1], [1, 1, 0], [0, 1, 1], [1, 0, 0]],
 )
-class Amazon:
-    def __init__(self, username, level = 1, strength = 20, dexterity = 25, vitality = 20, energy = 15):
-        self.username = username
 
-        self.level = level
 
-        self.strength = strength
-        self.dexterity = dexterity
-        self.vitality = vitality
-        self.energy = energy
+class Amazon(CharacterClass):
+    def __init__(
+        self,
+        username: str,
+        level: int = 1,
+        strength: int = 20,
+        dexterity: int = 25,
+        vitality: int = 20,
+        energy: int = 15,
+    ):
+        super().__init__("Amazon", username, level, strength, dexterity, vitality, energy)
 
-        self.skill_trees = [
-            amazon_javelin_and_spear_tree,
-            amazon_passive_and_magic_tree,
-            amazon_bow_and_crossbow_tree    
+    @property
+    def skill_trees(self):
+        return [amazon_javelin_and_spear_tree, amazon_passive_and_magic_tree, amazon_bow_and_crossbow_tree]
+
+    @property
+    def skill_tree_dependencies(self):
+        return [
+            [
+                [[0, 0], [1, 1]],
+                [[0, 0], [2, 0]],
+                [[1, 1], [3, 1]],
+                [[1, 2], [2, 2]],
+                [[2, 0], [4, 0]],
+                [[2, 2], [3, 1]],
+                [[2, 2], [3, 2]],
+                [[3, 1], [5, 1]],
+                [[3, 2], [5, 2]],
+            ],
+            [
+                [[0, 0], [2, 0]],
+                [[0, 2], [3, 2]],
+                [[1, 1], [2, 1]],
+                [[2, 0], [4, 0]],
+                [[2, 1], [4, 1]],
+                [[3, 2], [5, 2]],
+                [[4, 0], [5, 0]],
+                [[4, 1], [5, 0]],
+            ],
+            [
+                [[0, 1], [1, 1]],
+                [[0, 2], [2, 2]],
+                [[1, 0], [3, 0]],
+                [[1, 0], [3, 1]],
+                [[1, 1], [2, 2]],
+                [[1, 1], [3, 1]],
+                [[2, 2], [4, 2]],
+                [[3, 0], [5, 0]],
+                [[3, 1], [4, 1]],
+            ],
         ]
-
-        self.skill_tree_dependencies = [
-            [[[0, 0], [1, 1]], [[0, 0], [2, 0]], [[1, 1], [3, 1]], [[1, 2], [2, 2]], [[2, 0], [4, 0]], [[2, 2], [3, 1]], [[2, 2], [3, 2]], [[3, 1], [5, 1]], [[3, 2], [5, 2]]],
-            [[[0, 0], [2, 0]], [[0, 2], [3, 2]], [[1, 1], [2, 1]], [[2, 0], [4, 0]], [[2, 1], [4, 1]], [[3, 2], [5, 2]], [[4, 0], [5, 0]], [[4, 1], [5, 0]]], 
-            [[[0, 1], [1, 1]], [[0, 2], [2, 2]], [[1, 0], [3, 0]], [[1, 0], [3, 1]], [[1, 1], [2, 2]], [[1, 1], [3, 1]], [[2, 2], [4, 2]], [[3, 0], [5, 0]], [[3, 1], [4, 1]]]
-        ]
-
-    def __repr__(self):
-        return (f"Amazon(username={self.username!r}, "
-                f"level={self.level}, "
-                f"strength={self.strength}, "
-                f"dexterity={self.dexterity}, "
-                f"vitality={self.vitality}, "
-                f"energy={self.energy}, "
-                f"skill_trees={self.skill_trees!r}")
-
-    def to_dict(self):
-        return {
-            "username": self.username,
-            "level": self.level,
-            "strength": self.strength,
-            "dexterity": self.dexterity,
-            "vitality": self.vitality,
-            "energy": self.energy,
-            "skill_trees": [st.to_dict() for st in self.skill_trees],
-            "skill_tree_dependencies": self.skill_tree_dependencies
-        }

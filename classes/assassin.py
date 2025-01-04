@@ -1,5 +1,7 @@
+from classes.character_class import CharacterClass
+
 from skill import Skill
-from skill_tree import Skill_Tree
+from skill_tree import SkillTree
 
 # Martial Arts
 tiger_strike = Skill("Tiger Strike", [], 1, 0)
@@ -13,22 +15,22 @@ blades_of_ice = Skill("Blades of Ice", [claws_of_thunder], 24, 0)
 dragon_flight = Skill("Dragon Flight", [dragon_tail], 24, 0)
 phoenix_strike = Skill("Phoenix Strike", [cobra_strike], 30, 0)
 
-assassin_martial_arts_tree = Skill_Tree(
-    "Martial Arts", 
-    "Assassin", 
+assassin_martial_arts_tree = SkillTree(
+    "Martial Arts",
+    "Assassin",
     [
-        tiger_strike, 
-        dragon_talon, 
-        fists_of_fire, 
-        dragon_claw, 
-        cobra_strike, 
-        claws_of_thunder, 
-        dragon_tail, 
-        blades_of_ice, 
-        dragon_flight, 
-        phoenix_strike
+        tiger_strike,
+        dragon_talon,
+        fists_of_fire,
+        dragon_claw,
+        cobra_strike,
+        claws_of_thunder,
+        dragon_tail,
+        blades_of_ice,
+        dragon_flight,
+        phoenix_strike,
     ],
-    layout=[[0,1,1],[1,0,1],[0,1,0],[1,0,1],[1,0,1],[0,1,0]]
+    layout=[[0, 1, 1], [1, 0, 1], [0, 1, 0], [1, 0, 1], [1, 0, 1], [0, 1, 0]],
 )
 
 # Shadow Disciplines
@@ -43,22 +45,22 @@ mind_blast = Skill("Mind Blast", [cloak_of_shadows], 24, 0)
 venom = Skill("Venom", [fade], 30, 0)
 shadow_master = Skill("Shadow Master", [shadow_warrior], 30, 0)
 
-assassin_shadow_disciplines_tree = Skill_Tree(
-    "Shadow Disciplines", 
-    "Assassin", 
+assassin_shadow_disciplines_tree = SkillTree(
+    "Shadow Disciplines",
+    "Assassin",
     [
-        claw_mastery, 
-        psychic_hammer, 
-        burst_of_speed, 
-        weapon_block, 
-        cloak_of_shadows, 
-        fade, 
-        shadow_warrior, 
-        mind_blast, 
-        venom, 
-        shadow_master
+        claw_mastery,
+        psychic_hammer,
+        burst_of_speed,
+        weapon_block,
+        cloak_of_shadows,
+        fade,
+        shadow_warrior,
+        mind_blast,
+        venom,
+        shadow_master,
     ],
-    layout=[[0,1,1],[1,0,0],[0,1,1],[1,1,0],[0,0,1],[1,1,0]]
+    layout=[[0, 1, 1], [1, 0, 0], [0, 1, 1], [1, 1, 0], [0, 0, 1], [1, 1, 0]],
 )
 
 # Traps
@@ -73,64 +75,74 @@ wake_of_inferno = Skill("Wake of Inferno", [wake_of_fire], 24, 0)
 death_sentry = Skill("Death Sentry", [lightning_sentry], 30, 0)
 blade_shield = Skill("Blade Shield", [blade_fury], 30, 0)
 
-assassin_traps_tree = Skill_Tree(
-    "Traps", 
-    "Assassin", 
+assassin_traps_tree = SkillTree(
+    "Traps",
+    "Assassin",
     [
-        fire_blast, 
-        shock_web, 
-        blade_sentinel, 
-        charged_bolt_sentry, 
-        wake_of_fire, 
-        blade_fury, 
-        lightning_sentry, 
-        wake_of_inferno, 
-        death_sentry, 
-        blade_shield
+        fire_blast,
+        shock_web,
+        blade_sentinel,
+        charged_bolt_sentry,
+        wake_of_fire,
+        blade_fury,
+        lightning_sentry,
+        wake_of_inferno,
+        death_sentry,
+        blade_shield,
     ],
-    layout=[[0,1,0],[1,0,1],[1,1,0],[0,0,1],[1,1,0],[1,0,1]]
+    layout=[[0, 1, 0], [1, 0, 1], [1, 1, 0], [0, 0, 1], [1, 1, 0], [1, 0, 1]],
 )
 
-class Assassin:
-    def __init__(self, username, level = 1, strength = 20, dexterity = 20, vitality = 20, energy = 25):
-        self.username = username
 
-        self.level = level
+class Assassin(CharacterClass):
+    def __init__(
+        self,
+        username: str,
+        level: int = 1,
+        strength: int = 20,
+        dexterity: int = 20,
+        vitality: int = 20,
+        energy: int = 25,
+    ):
+        super().__init__("Assassin", username, level, strength, dexterity, vitality, energy)
 
-        self.strength = strength
-        self.dexterity = dexterity
-        self.vitality = vitality
-        self.energy = energy
+    @property
+    def skill_trees(self):
+        return [assassin_martial_arts_tree, assassin_shadow_disciplines_tree, assassin_traps_tree]
 
-        self.skill_trees = [
-            assassin_martial_arts_tree,
-            assassin_shadow_disciplines_tree,
-            assassin_traps_tree    
+    @property
+    def skill_tree_dependencies(self):
+        return [
+            [
+                [[0, 1], [2, 1]],
+                [[0, 2], [1, 2]],
+                [[1, 0], [3, 0]],
+                [[1, 2], [3, 2]],
+                [[2, 1], [5, 1]],
+                [[3, 0], [4, 0]],
+                [[3, 2], [4, 2]],
+                [[4, 0], [5, 1]],
+            ],
+            [
+                [[0, 1], [1, 0]],
+                [[0, 1], [2, 1]],
+                [[0, 2], [2, 2]],
+                [[1, 0], [3, 0]],
+                [[2, 1], [3, 1]],
+                [[2, 2], [3, 1]],
+                [[2, 2], [4, 2]],
+                [[3, 0], [5, 0]],
+                [[3, 1], [5, 1]],
+            ],
+            [
+                [[0, 1], [1, 0]],
+                [[0, 1], [2, 1]],
+                [[1, 0], [2, 0]],
+                [[1, 2], [3, 2]],
+                [[2, 0], [4, 0]],
+                [[2, 1], [3, 2]],
+                [[2, 1], [4, 1]],
+                [[3, 2], [5, 2]],
+                [[4, 0], [5, 0]],
+            ],
         ]
-
-        self.skill_tree_dependencies = [
-            [[[0, 1], [2, 1]], [[0, 2], [1, 2]], [[1, 0], [3, 0]], [[1, 2], [3, 2]], [[2, 1], [5, 1]], [[3, 0], [4, 0]], [[3, 2], [4, 2]], [[4, 0], [5, 1]]],
-            [[[0, 1], [1, 0]], [[0, 1], [2, 1]], [[0, 2], [2, 2]], [[1, 0], [3, 0]], [[2, 1], [3, 1]], [[2, 2], [3, 1]], [[2, 2], [4, 2]], [[3, 0], [5, 0]],[[3,1],[5,1]]],
-            [[[0, 1], [1, 0]], [[0, 1], [2, 1]], [[1, 0], [2, 0]], [[1, 2], [3, 2]], [[2, 0], [4, 0]], [[2, 1], [3, 2]], [[2, 1], [4, 1]], [[3, 2], [5, 2]],[[4,0],[5,0]]]
-        ]
-        
-    def __repr__(self):
-        return (f"Assassin(username={self.username!r}, "
-                f"level={self.level}, "
-                f"strength={self.strength}, "
-                f"dexterity={self.dexterity}, "
-                f"vitality={self.vitality}, "
-                f"energy={self.energy}, "
-                f"skill_trees={self.skill_trees!r}")
-
-    def to_dict(self):
-        return {
-            "username": self.username,
-            "level": self.level,
-            "strength": self.strength,
-            "dexterity": self.dexterity,
-            "vitality": self.vitality,
-            "energy": self.energy,
-            "skill_trees": [st.to_dict() for st in self.skill_trees],
-            "skill_tree_dependencies": self.skill_tree_dependencies
-        }

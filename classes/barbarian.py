@@ -1,5 +1,6 @@
+from classes.character_class import CharacterClass
 from skill import Skill
-from skill_tree import Skill_Tree
+from skill_tree import SkillTree
 
 # Warcries
 howl = Skill("Howl", [], 1, 0)
@@ -13,22 +14,11 @@ grim_ward = Skill("Grim Ward", [find_item], 24, 0)
 war_cry = Skill("War Cry", [battle_cry, battle_orders], 30, 0)
 battle_command = Skill("Battle Command", [battle_orders], 30, 0)
 
-barbarian_warcries_tree = Skill_Tree(
-    "Warcries", 
-    "Barbarian", 
-    [
-        howl, 
-        find_potion, 
-        taunt, 
-        shout, 
-        find_item, 
-        battle_cry, 
-        battle_orders, 
-        grim_ward, 
-        war_cry, 
-        battle_command
-    ],
-    layout=[[1,0,1],[1,1,0],[0,0,1],[1,0,0],[0,1,1],[1,1,0]]
+barbarian_warcries_tree = SkillTree(
+    "Warcries",
+    "Barbarian",
+    [howl, find_potion, taunt, shout, find_item, battle_cry, battle_orders, grim_ward, war_cry, battle_command],
+    layout=[[1, 0, 1], [1, 1, 0], [0, 0, 1], [1, 0, 0], [0, 1, 1], [1, 1, 0]],
 )
 
 # Combat Masteries
@@ -43,22 +33,22 @@ iron_skin = Skill("Iron Skin", [], 18, 0)
 increased_speed = Skill("Increased Speed", [increased_stamina], 24, 0)
 natural_resistance = Skill("Natural Resistance", [iron_skin], 30, 0)
 
-barbarian_combat_masteries_tree = Skill_Tree(
-    "Combat Masteries", 
-    "Barbarian", 
+barbarian_combat_masteries_tree = SkillTree(
+    "Combat Masteries",
+    "Barbarian",
     [
-       blade_mastery, 
-       axe_mastery, 
-       mace_mastery, 
-       polearm_mastery, 
-       throwing_mastery, 
-       spear_mastery, 
-       increased_stamina, 
-       iron_skin, 
-       increased_speed, 
-       natural_resistance
+        blade_mastery,
+        axe_mastery,
+        mace_mastery,
+        polearm_mastery,
+        throwing_mastery,
+        spear_mastery,
+        increased_stamina,
+        iron_skin,
+        increased_speed,
+        natural_resistance,
     ],
-    layout=[[1,1,1],[1,1,1],[1,0,0],[0,0,1],[1,0,0],[0,0,1]]
+    layout=[[1, 1, 1], [1, 1, 1], [1, 0, 0], [0, 0, 1], [1, 0, 0], [0, 0, 1]],
 )
 
 # Combat Skills
@@ -73,63 +63,54 @@ frenzy = Skill("Frenzy", [double_throw], 24, 0)
 whirlwind = Skill("Whirlwind", [leap_attack, concentrate], 30, 0)
 berserk = Skill("Berserk", [concentrate], 30, 0)
 
-barbarian_combat_skills_tree = Skill_Tree(
-    "Combat Skills", 
-    "Barbarian", 
-    [
-        bash, 
-        leap, 
-        double_swing, 
-        stun, 
-        double_throw, 
-        leap_attack, 
-        concentrate, 
-        frenzy, 
-        whirlwind, 
-        berserk
-    ],
-    layout=[[0,1,0],[1,0,1],[0,1,1],[1,1,0],[0,0,1],[1,1,0]]
+barbarian_combat_skills_tree = SkillTree(
+    "Combat Skills",
+    "Barbarian",
+    [bash, leap, double_swing, stun, double_throw, leap_attack, concentrate, frenzy, whirlwind, berserk],
+    layout=[[0, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 0], [0, 0, 1], [1, 1, 0]],
 )
-class Barbarian:
-    def __init__(self, username, level = 1, strength = 30, dexterity = 20, vitality = 25, energy = 10):
-        self.username = username
 
-        self.level = level
 
-        self.strength = strength
-        self.dexterity = dexterity
-        self.vitality = vitality
-        self.energy = energy
+class Barbarian(CharacterClass):
+    def __init__(
+        self,
+        username: str,
+        level: int = 1,
+        strength: int = 30,
+        dexterity: int = 20,
+        vitality: int = 25,
+        energy: int = 10,
+    ):
+        super().__init__("Barbarian", username, level, strength, dexterity, vitality, energy)
 
-        self.skill_trees = [
-            barbarian_warcries_tree,
-            barbarian_combat_masteries_tree,
-            barbarian_combat_skills_tree    
+    @property
+    def skill_trees(self):
+        return [barbarian_warcries_tree, barbarian_combat_masteries_tree, barbarian_combat_skills_tree]
+
+    @property
+    def skill_tree_dependencies(self):
+        return [
+            [
+                [[0, 0], [1, 0]],
+                [[0, 0], [1, 1]],
+                [[0, 2], [2, 2]],
+                [[1, 0], [3, 0]],
+                [[1, 1], [4, 1]],
+                [[2, 2], [4, 2]],
+                [[3, 0], [5, 0]],
+                [[4, 1], [5, 0]],
+                [[4, 1], [5, 1]],
+            ],
+            [[[2, 0], [4, 0]], [[3, 2], [5, 2]]],
+            [
+                [[0, 1], [1, 2]],
+                [[0, 1], [2, 1]],
+                [[1, 0], [3, 0]],
+                [[1, 2], [2, 2]],
+                [[2, 1], [3, 1]],
+                [[2, 2], [4, 2]],
+                [[3, 0], [5, 0]],
+                [[3, 1], [5, 0]],
+                [[3, 1], [5, 1]],
+            ],
         ]
-
-        self.skill_tree_dependencies = [
-            [[[0, 0], [1, 0]], [[0, 0], [1, 1]], [[0, 2], [2, 2]], [[1, 0], [3, 0]], [[1, 1], [4, 1]], [[2, 2], [4, 2]], [[3, 0], [5, 0]], [[4, 1], [5, 0]], [[4, 1], [5, 1]]], 
-            [[[2, 0], [4, 0]], [[3, 2], [5, 2]]], 
-            [[[0, 1], [1, 2]], [[0, 1], [2, 1]], [[1, 0], [3, 0]], [[1, 2], [2, 2]], [[2, 1], [3, 1]], [[2, 2], [4, 2]], [[3, 0], [5, 0]], [[3, 1], [5, 0]], [[3, 1], [5, 1]]]
-        ]
-
-    def __repr__(self):
-        return (f"Barbarian(username={self.username!r}, "
-                f"level={self.level}, "
-                f"strength={self.strength}, "
-                f"dexterity={self.dexterity}, "
-                f"vitality={self.vitality}, "
-                f"energy={self.energy}, "
-                f"skill_trees={self.skill_trees!r}")
-
-    def to_dict(self):
-        return {
-            "username": self.username,
-            "level": self.level,
-            "strength": self.strength,
-            "dexterity": self.dexterity,
-            "vitality": self.vitality,
-            "energy": self.energy,
-            "skill_trees": [st.to_dict() for st in self.skill_trees],
-            "skill_tree_dependencies": self.skill_tree_dependencies
-        }

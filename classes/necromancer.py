@@ -1,5 +1,6 @@
+from classes.character_class import CharacterClass
 from skill import Skill
-from skill_tree import Skill_Tree
+from skill_tree import SkillTree
 
 # Summoning
 raise_skeleton = Skill("Raise Skeleton", [], 1, 0)
@@ -14,22 +15,22 @@ fire_golem = Skill("Fire Golem", [iron_golem], 30, 0)
 revive = Skill("Revive", [raise_skeletal_mage, iron_golem], 30, 0)
 
 
-necromancer_summoning_tree = Skill_Tree(
-    "Summoning", 
-    "Necromancer", 
+necromancer_summoning_tree = SkillTree(
+    "Summoning",
+    "Necromancer",
     [
-        skeleton_mastery,  
-        raise_skeleton, 
-        clay_golem, 
-        golem_mastery, 
-        raise_skeletal_mage, 
-        blood_golem, 
-        summon_resist, 
-        iron_golem, 
-        fire_golem, 
-        revive
+        skeleton_mastery,
+        raise_skeleton,
+        clay_golem,
+        golem_mastery,
+        raise_skeletal_mage,
+        blood_golem,
+        summon_resist,
+        iron_golem,
+        fire_golem,
+        revive,
     ],
-    layout=[[1,0,1],[0,1,0],[1,0,1],[0,1,0],[1,1,0],[0,1,1]]
+    layout=[[1, 0, 1], [0, 1, 0], [1, 0, 1], [0, 1, 0], [1, 1, 0], [0, 1, 1]],
 )
 
 # Poison and Bone
@@ -44,22 +45,22 @@ bone_prison = Skill("Bone Prison", [bone_wall, bone_spear], 24, 0)
 poison_nova = Skill("Poison Nova", [poison_explosion], 30, 0)
 bone_spirit = Skill("Bone Spirit", [bone_spear], 30, 0)
 
-necromancer_poison_and_bone_tree = Skill_Tree(
-    "Poison and Bone", 
-    "Necromancer", 
+necromancer_poison_and_bone_tree = SkillTree(
+    "Poison and Bone",
+    "Necromancer",
     [
-        teeth,  
-        bone_armor, 
-        poison_dagger, 
-        corpse_explosion, 
-        bone_wall, 
-        poison_explosion, 
-        bone_spear, 
-        bone_prison, 
-        poison_nova, 
-        bone_spirit
+        teeth,
+        bone_armor,
+        poison_dagger,
+        corpse_explosion,
+        bone_wall,
+        poison_explosion,
+        bone_spear,
+        bone_prison,
+        poison_nova,
+        bone_spirit,
     ],
-    layout=[[0,1,1],[1,1,0],[0,0,1],[1,1,0],[0,0,1],[1,1,0]]
+    layout=[[0, 1, 1], [1, 1, 0], [0, 0, 1], [1, 1, 0], [0, 0, 1], [1, 1, 0]],
 )
 
 # Curses
@@ -75,63 +76,64 @@ decrepify = Skill("Decrepify", [terror], 24, 0)
 lower_resist = Skill("Lower Resist", [life_tap, terror], 30, 0)
 
 
-necromnacer_curses_tree = Skill_Tree(
-    "Curses", 
-    "Necromancer", 
-    [
-        amplify_damage, 
-        dim_vision, 
-        weaken, 
-        iron_maiden, 
-        terror, 
-        confuse, 
-        life_tap, 
-        attract, 
-        decrepify, 
-        lower_resist
-    ],
-    layout=[[0,1,0],[1,0,1],[0,1,1],[1,1,0],[1,0,1],[0,1,0]]
+necromnacer_curses_tree = SkillTree(
+    "Curses",
+    "Necromancer",
+    [amplify_damage, dim_vision, weaken, iron_maiden, terror, confuse, life_tap, attract, decrepify, lower_resist],
+    layout=[[0, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 0], [1, 0, 1], [0, 1, 0]],
 )
-class Necromancer:
-    def __init__(self, username, level = 1, strength = 15, dexterity = 25, vitality = 15, energy = 25):
-        self.username = username
 
-        self.level = level
 
-        self.strength = strength
-        self.dexterity = dexterity
-        self.vitality = vitality
-        self.energy = energy
+class Necromancer(CharacterClass):
+    def __init__(
+        self,
+        username: str,
+        level: int = 1,
+        strength: int = 15,
+        dexterity: int = 25,
+        vitality: int = 15,
+        energy: int = 25,
+    ):
+        super().__init__("Necromancer", username, level, strength, dexterity, vitality, energy)
 
-        self.skill_trees = [
-            necromancer_summoning_tree,
-            necromancer_poison_and_bone_tree,
-            necromnacer_curses_tree    
+    @property
+    def skill_trees(self):
+        return [necromancer_summoning_tree, necromancer_poison_and_bone_tree, necromnacer_curses_tree]
+
+    @property
+    def skill_tree_dependencies(self):
+        return [
+            [
+                [[0, 2], [0, 0]],
+                [[0, 2], [2, 2]],
+                [[1, 1], [2, 0]],
+                [[1, 1], [3, 1]],
+                [[2, 0], [4, 0]],
+                [[2, 2], [5, 2]],
+                [[3, 1], [4, 1]],
+                [[4, 1], [5, 1]],
+                [[4, 1], [5, 2]],
+            ],
+            [
+                [[0, 1], [1, 1]],
+                [[0, 2], [2, 2]],
+                [[1, 0], [3, 0]],
+                [[1, 1], [3, 0]],
+                [[1, 1], [3, 1]],
+                [[2, 2], [4, 2]],
+                [[3, 0], [5, 0]],
+                [[3, 1], [4, 2]],
+                [[3, 1], [5, 1]],
+            ],
+            [
+                [[0, 1], [1, 2]],
+                [[0, 1], [2, 1]],
+                [[1, 0], [3, 0]],
+                [[1, 2], [2, 2]],
+                [[2, 1], [3, 1]],
+                [[2, 2], [4, 2]],
+                [[3, 0], [4, 0]],
+                [[3, 1], [5, 1]],
+                [[4, 2], [5, 1]],
+            ],
         ]
-
-        self.skill_tree_dependencies = [
-            [[[0, 2], [0, 0]], [[0, 2], [2, 2]], [[1, 1], [2, 0]], [[1, 1], [3, 1]], [[2, 0], [4, 0]], [[2, 2], [5, 2]], [[3, 1], [4, 1]], [[4, 1], [5, 1]], [[4, 1], [5, 2]]],
-            [[[0, 1], [1, 1]], [[0, 2], [2, 2]], [[1, 0], [3, 0]], [[1, 1], [3, 0]], [[1, 1], [3, 1]], [[2, 2], [4, 2]], [[3, 0], [5, 0]], [[3, 1], [4, 2]], [[3, 1], [5, 1]]],
-            [[[0, 1], [1, 2]], [[0, 1], [2, 1]], [[1, 0], [3, 0]], [[1, 2], [2, 2]], [[2, 1], [3, 1]], [[2, 2], [4, 2]], [[3, 0], [4, 0]], [[3, 1], [5, 1]], [[4, 2], [5, 1]]]
-        ]
-
-    def __repr__(self):
-        return (f"Necromancer(username={self.username!r}, "
-                f"level={self.level}, "
-                f"strength={self.strength}, "
-                f"dexterity={self.dexterity}, "
-                f"vitality={self.vitality}, "
-                f"energy={self.energy}, "
-                f"skill_trees={self.skill_trees!r}")
-
-    def to_dict(self):
-        return {
-            "username": self.username,
-            "level": self.level,
-            "strength": self.strength,
-            "dexterity": self.dexterity,
-            "vitality": self.vitality,
-            "energy": self.energy,
-            "skill_trees": [st.to_dict() for st in self.skill_trees],
-            "skill_tree_dependencies": self.skill_tree_dependencies
-        }

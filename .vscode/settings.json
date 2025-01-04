@@ -1,0 +1,23 @@
+{
+    "isort.args": [
+        "--profile",
+        "black",
+    ],
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        "editor.defaultFormatter": "ms-python.black-formatter",
+    },
+    "black-formatter.interpreter": [
+        "${workspaceFolder}/.venv/bin/python"
+      ],
+      "black-formatter.path": [
+        "${workspaceFolder}/.venv/bin/black"
+      ],
+      "black-formatter.args": [
+        "-l 120"
+      ],
+      "autoDocstring.docstringFormat": "google"
+}
